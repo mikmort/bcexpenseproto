@@ -34,6 +34,7 @@ table 50109 "Expense Receipts"
         {
             DataClassification = ToBeClassified;
             BlankZero = true;
+            TableRelation = Currency.Code;
         }
     }
     keys

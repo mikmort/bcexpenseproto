@@ -33,6 +33,7 @@ table 50103 "Expense Report Lines"
         field(7; "Currency Code"; Code[3])
         {
             DataClassification = ToBeClassified;
+            TableRelation = Currency.Code;
         }
         field(8; Amount; Decimal)
         {
@@ -77,11 +78,13 @@ table 50103 "Expense Report Lines"
         {
             DataClassification = ToBeClassified;
             BlankZero = true;
+            TableRelation = Customer."No.";
         }
         field(17; "Vendor Account"; Code[30])
         {
             DataClassification = ToBeClassified;
             BlankZero = true;
+            TableRelation = Vendor."No.";
         }
         field(18; Status; Code[30])
         {

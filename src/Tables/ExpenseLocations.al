@@ -10,6 +10,7 @@ table 50107 "Expense Locations"
         field(2; "Country Region Code"; Code[2])
         {
             DataClassification = ToBeClassified;
+            TableRelation = "Country/Region".Code;
         }
         field(3; Description; Text[255])
         {

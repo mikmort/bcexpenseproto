@@ -31,6 +31,7 @@ table 50102 "Expense Reports"
         field(7; "Currency Code"; Code[3])
         {
             DataClassification = ToBeClassified;
+            TableRelation = Currency.Code;
         }
         field(8; "Total Amount"; Decimal)
         {
