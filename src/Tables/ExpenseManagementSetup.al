@@ -13,7 +13,7 @@ table 50100 "Expense Management Setup"
             Caption = 'Expense Report No. Sequence';
             DataClassification = ToBeClassified;
         }
-        field(3; "Posted Expense Report No. Sequence"; Code[30])
+        field(3; "Posted Expense Report No Seq."; Code[30])
         {
             Caption = 'Posted Expense Report No. Sequence';
             DataClassification = ToBeClassified;

@@ -13,7 +13,7 @@ page 50168 "Expense Management Setup"
             {
                 field("Setup Id"; "Setup Id") { ApplicationArea = All; }
                 field("Expense Report No. Sequence"; "Expense Report No. Sequence") { ApplicationArea = All; }
-                field("Posted Expense Report No. Sequence"; "Posted Expense Report No. Sequence") { ApplicationArea = All; }
+                field("Posted Expense Report No Seq."; "Posted Expense Report No Seq.") { ApplicationArea = All; }
                 field("Enable Expense Agent"; "Enable Expense Agent") { ApplicationArea = All; }
             }
         }

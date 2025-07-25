@@ -71,7 +71,7 @@ table 50103 "Expense Report Lines"
         {
             Caption = 'Payment Method Code';
             DataClassification = ToBeClassified;
-            TableRelation = PaymentMethods."Payment Method Code";
+            TableRelation = "Payment Methods"."Payment Method Code";
         }
         field(13; "Receipt Required"; Boolean)
         {

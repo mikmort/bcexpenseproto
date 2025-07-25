@@ -55,7 +55,7 @@ table 50102 "Expense Reports"
         {
             Caption = 'Payment Method Code';
             DataClassification = ToBeClassified;
-            TableRelation = PaymentMethods."Payment Method Code";
+            TableRelation = "Payment Methods"."Payment Method Code";
         }
         field(11; "Pre Approval Number"; Code[30])
         {
