@@ -41,6 +41,7 @@ table 50109 "Expense Receipts"
             Caption = 'Currency Code';
             DataClassification = ToBeClassified;
             BlankZero = true;
+            TableRelation = Currency.Code;
         }
     }
     keys

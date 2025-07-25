@@ -12,16 +12,19 @@ table 50115 "Expense Posting Groups"
         {
             Caption = 'Refundable Debit Account';
             DataClassification = ToBeClassified;
+            TableRelation = "G/L Account"."No.";
         }
         field(3; "Non Refundable Debit Account"; Code[25])
         {
             Caption = 'Non Refundable Debit Account';
             DataClassification = ToBeClassified;
+            TableRelation = "G/L Account"."No.";
         }
         field(4; "Prepayment Credit Account"; Code[25])
         {
             Caption = 'Prepayment Credit Account';
             DataClassification = ToBeClassified;
+            TableRelation = "G/L Account"."No.";
         }
     }
     keys

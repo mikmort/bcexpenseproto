@@ -27,6 +27,7 @@ table 50101 Employees
         {
             Caption = 'Default Currency';
             DataClassification = ToBeClassified;
+            TableRelation = Currency.Code;
         }
         field(6; "Legal Entity"; Code[10])
         {

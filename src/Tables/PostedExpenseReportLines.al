@@ -7,6 +7,7 @@ table 50118 "Posted Expense Report Lines"
         {
             Caption = 'Posted Report ID';
             DataClassification = ToBeClassified;
+            TableRelation = "Posted Expense Report Headers"."Posted Report Id";
         }
         field(2; "Line Number"; Integer)
         {
@@ -17,11 +18,13 @@ table 50118 "Posted Expense Report Lines"
         {
             Caption = 'Employee ID';
             DataClassification = ToBeClassified;
+            TableRelation = Employees."Employee Id";
         }
         field(4; "Category Code"; Code[20])
         {
             Caption = 'Category Code';
             DataClassification = ToBeClassified;
+            TableRelation = "Expense Categories"."Category Code";
         }
         field(5; Amount; Decimal)
         {
@@ -33,11 +36,13 @@ table 50118 "Posted Expense Report Lines"
         {
             Caption = 'Currency Code';
             DataClassification = ToBeClassified;
+            TableRelation = Currency.Code;
         }
         field(7; "Expense Location Code"; Code[10])
         {
             Caption = 'Expense Location Code';
             DataClassification = ToBeClassified;
+            TableRelation = "Expense Locations"."Location Code";
         }
     }
     keys

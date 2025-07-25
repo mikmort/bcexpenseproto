@@ -12,6 +12,7 @@ table 50107 "Expense Locations"
         {
             Caption = 'Country/Region Code';
             DataClassification = ToBeClassified;
+            TableRelation = "Country/Region".Code;
         }
         field(3; Description; Text[255])
         {

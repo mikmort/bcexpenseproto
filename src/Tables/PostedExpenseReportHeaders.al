@@ -18,6 +18,7 @@ table 50117 "Posted Expense Report Headers"
         {
             Caption = 'Employee ID';
             DataClassification = ToBeClassified;
+            TableRelation = Employees."Employee Id";
         }
         field(4; "Posted Date"; Date)
         {
@@ -28,6 +29,7 @@ table 50117 "Posted Expense Report Headers"
         {
             Caption = 'Currency Code';
             DataClassification = ToBeClassified;
+            TableRelation = Currency.Code;
         }
         field(6; "Total Amount"; Decimal)
         {
