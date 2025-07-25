@@ -5,10 +5,12 @@ table 50106 "Expense Groups"
     {
         field(1; "Expense Group Code"; Code[20])
         {
+            Caption = 'Expense Group Code';
             DataClassification = ToBeClassified;
         }
         field(2; Description; Text[255])
         {
+            Caption = 'Description';
             DataClassification = ToBeClassified;
         }
     }
