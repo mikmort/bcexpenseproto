@@ -186,6 +186,14 @@ jobs:
           azureCredentialsJson: '${{ fromJson(steps.ReadSecrets.outputs.Secrets).AZURE_CREDENTIALS }}'
           pathToFiles: '${{ inputs.project }}/.buildartifacts/Apps/*.app'
 
+      - name: Re-read settings
+        if: success() || failure()
+        uses: microsoft/AL-Go-Actions/ReadSettings@v7.2
+        with:
+          shell: ${{ inputs.shell }}
+          project: ${{ inputs.project }}
+          buildMode: ${{ inputs.buildMode }}
+
       - name: Calculate Artifact names
         id: calculateArtifactsNames
         uses: microsoft/AL-Go-Actions/CalculateArtifactNames@v7.2
