@@ -63,14 +63,12 @@ jobs:
       - name: Read settings
         uses: microsoft/AL-Go-Actions/ReadSettings@v7.2
         with:
-          shell: ${{ inputs.shell }}
           project: ${{ inputs.project }}
           get: type,powerPlatformSolutionFolder,appRevision,appBuild
 
       - name: Build
         uses: microsoft/AL-Go-Actions/BuildPowerPlatform@v7.2
         with:
-          shell: ${{ inputs.shell }}
           solutionFolder: ${{ inputs.project }}
           outputFolder: ${{ inputs.project }}/.buildartifacts/_PowerPlatformSolution/
           outputFileName: ${{ inputs.project }}
@@ -82,7 +80,6 @@ jobs:
         uses: microsoft/AL-Go-Actions/CalculateArtifactNames@v7.2
         if: success() || failure()
         with:
-          shell: ${{ inputs.shell }}
           project: ${{ inputs.project }}
           buildMode: 'default'
           suffix: ${{ inputs.artifactsNameSuffix }}
