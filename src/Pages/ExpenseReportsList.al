@@ -24,4 +24,32 @@ page 50152 "Expense Reports List"
             }
         }
     }
+
+    actions
+    {
+        area(processing)
+        {
+            action("New Expense Report")
+            {
+                ApplicationArea = All;
+                Caption = 'New Expense Report';
+                Image = New;
+                Promoted = true;
+                PromotedCategory = New;
+                PromotedIsBig = true;
+                ToolTip = 'Create a new expense report';
+
+                trigger OnAction()
+                var
+                    ExpenseReport: Record "Expense Reports";
+                    ExpenseReportCard: Page "Expense Report Card";
+                begin
+                    Clear(ExpenseReport);
+                    ExpenseReport.Init();
+                    ExpenseReportCard.SetRecord(ExpenseReport);
+                    ExpenseReportCard.Run();
+                end;
+            }
+        }
+    }
 }
