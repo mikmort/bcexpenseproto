@@ -194,6 +194,14 @@ jobs:
           project: ${{ inputs.project }}
           buildMode: ${{ inputs.buildMode }}
 
+      - name: Ensure Settings
+        if: success() || failure()
+        run: |
+          if (-not $env:Settings) {
+            Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value 'Settings={}'
+          }
+        shell: ${{ inputs.shell }}
+
       - name: Calculate Artifact names
         id: calculateArtifactsNames
         uses: microsoft/AL-Go-Actions/CalculateArtifactNames@v7.2
