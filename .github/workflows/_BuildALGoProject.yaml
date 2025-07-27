@@ -90,6 +90,7 @@ jobs:
     defaults:
       run:
         shell: ${{ inputs.shell }}
+
     name: ${{ inputs.projectName }} (${{ inputs.buildMode }})
     steps:
       - name: Checkout
@@ -101,7 +102,7 @@ jobs:
       - name: Read settings
         uses: microsoft/AL-Go-Actions/ReadSettings@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
           buildMode: ${{ inputs.buildMode }}
           get: useCompilerFolder,keyVaultCodesignCertificateName,doNotSignApps,doNotRunTests,doNotRunBcptTests,doNotRunpageScriptingTests,artifact,generateDependencyArtifact,trustedSigning,useGitSubmodules
@@ -110,7 +111,7 @@ jobs:
         id: DetermineBuildProject
         uses: microsoft/AL-Go-Actions/DetermineBuildProject@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           skippedProjectsJson: ${{ inputs.skippedProjectsJson }}
           project: ${{ inputs.project }}
           baselineWorkflowRunId: ${{ inputs.baselineWorkflowRunId }}
@@ -120,7 +121,7 @@ jobs:
         if: steps.DetermineBuildProject.outputs.BuildIt == 'True' && github.event_name != 'pull_request'
         uses: microsoft/AL-Go-Actions/ReadSecrets@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: '${{ inputs.secrets }},appDependencySecrets,AZURE_CREDENTIALS,-gitSubmodulesToken'
 
@@ -138,7 +139,7 @@ jobs:
         if: steps.DetermineBuildProject.outputs.BuildIt == 'True'
         uses: microsoft/AL-Go-Actions/DetermineArtifactUrl@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
 
       - name: Cache Business Central Artifacts
@@ -155,7 +156,7 @@ jobs:
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
           buildMode: ${{ inputs.buildMode }}
           projectDependenciesJson: ${{ inputs.projectDependenciesJson }}
@@ -168,7 +169,7 @@ jobs:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
           BuildMode: ${{ inputs.buildMode }}
         with:
-          shell: ${{ inputs.shell }}
+
           artifact: ${{ env.artifact }}
           project: ${{ inputs.project }}
           buildMode: ${{ inputs.buildMode }}
@@ -182,7 +183,7 @@ jobs:
         if: steps.DetermineBuildProject.outputs.BuildIt == 'True' && inputs.signArtifacts && env.doNotSignApps == 'False' && (env.keyVaultCodesignCertificateName != '' || (fromJson(env.trustedSigning).Endpoint != '' && fromJson(env.trustedSigning).Account != '' && fromJson(env.trustedSigning).CertificateProfile != ''))
         uses: microsoft/AL-Go-Actions/Sign@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           azureCredentialsJson: '${{ fromJson(steps.ReadSecrets.outputs.Secrets).AZURE_CREDENTIALS }}'
           pathToFiles: '${{ inputs.project }}/.buildartifacts/Apps/*.app'
 
@@ -190,7 +191,7 @@ jobs:
         if: success() || failure()
         uses: microsoft/AL-Go-Actions/ReadSettings@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
           buildMode: ${{ inputs.buildMode }}
 
@@ -200,14 +201,13 @@ jobs:
           if (-not $env:Settings) {
             Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value 'Settings={}'
           }
-        shell: ${{ inputs.shell }}
 
       - name: Calculate Artifact names
         id: calculateArtifactsNames
         uses: microsoft/AL-Go-Actions/CalculateArtifactNames@v7.2
         if: success() || failure()
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
           buildMode: ${{ inputs.buildMode }}
           suffix: ${{ inputs.artifactsNameSuffix }}
@@ -292,7 +292,7 @@ jobs:
         if: (success() || failure()) && env.doNotRunTests == 'False'
         uses: microsoft/AL-Go-Actions/AnalyzeTests@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
           testType: "normal"
 
@@ -301,7 +301,7 @@ jobs:
         if: (success() || failure()) && env.doNotRunBcptTests == 'False'
         uses: microsoft/AL-Go-Actions/AnalyzeTests@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
           testType: "bcpt"
 
@@ -310,7 +310,7 @@ jobs:
         if: (success() || failure()) && env.doNotRunpageScriptingTests == 'False'
         uses: microsoft/AL-Go-Actions/AnalyzeTests@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
           testType: "pageScripting"
 
@@ -318,5 +318,5 @@ jobs:
         if: always() && steps.DetermineBuildProject.outputs.BuildIt == 'True'
         uses: microsoft/AL-Go-Actions/PipelineCleanup@v7.2
         with:
-          shell: ${{ inputs.shell }}
+
           project: ${{ inputs.project }}
