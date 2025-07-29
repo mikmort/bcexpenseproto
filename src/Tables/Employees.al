@@ -7,7 +7,7 @@ table 50101 Employees
         {
             Caption = 'Employee ID';
             DataClassification = ToBeClassified;
-        }
+        } 
         field(2; "First Name"; Text[100])
         {
             Caption = 'First Name';
