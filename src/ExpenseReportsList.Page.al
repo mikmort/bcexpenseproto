@@ -44,14 +44,19 @@ page 50152 "Expense Reports List"
                     ExpenseReport: Record "Expense Reports";
                     ExpenseReportCard: Page "Expense Report Card";
                 begin
-                    // Create a new record and insert it to get a proper primary key
+                    // Create and insert a new record with proper error handling
+                    Clear(ExpenseReport);
                     ExpenseReport.Init();
-                    ExpenseReport.Insert(true); // This will trigger OnInsert and assign ID
-                    
-                    // Open the card for the new record
-                    ExpenseReportCard.SetRecord(ExpenseReport);
-                    ExpenseReportCard.RunModal();
-                    CurrPage.Update(false);
+                    if ExpenseReport.Insert(true) then begin // Insert with triggers
+                        // Commit to end the transaction before opening modal
+                        if not ExpenseReport.Get(ExpenseReport."Report Id") then
+                            exit; // Safety check
+                        
+                        // Open the card for the new record
+                        ExpenseReportCard.SetRecord(ExpenseReport);
+                        ExpenseReportCard.Run();
+                        CurrPage.Update(false);
+                    end;
                 end;
             }
         }
