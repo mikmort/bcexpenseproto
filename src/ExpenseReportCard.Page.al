@@ -149,39 +149,6 @@ page 50153 "Expense Report Card"
                     Message('Report submitted for approval.');
                 end;
             }
-            action(AddExpenseLine)
-            {
-                ApplicationArea = All;
-                Caption = 'Add Expense Line';
-                Image = NewItem;
-                ToolTip = 'Add a new expense line to this report.';
-                Enabled = Rec.Status = "Expense Status"::Draft;
-
-                trigger OnAction()
-                var
-                    ExpenseReportLine: Record "Expense Report Lines";
-                    ExpenseReportLineCard: Page "Expense Report Line Card";
-                begin
-                    ExpenseReportLine.Init();
-                    ExpenseReportLine."Report Id" := Rec."Report Id";
-                    ExpenseReportLine."Line Number" := GetNextLineNumber();
-
-                    // Set smart defaults for new expense line
-                    ExpenseReportLine."Expense Date" := GetValidDateForEntry();
-                    ExpenseReportLine."Currency Code" := Rec."Currency Code";
-                    ExpenseReportLine."Payment Method Code" := Rec."Payment Method Code";
-                    ExpenseReportLine.Status := "Expense Status"::Draft;
-                    ExpenseReportLine."Receipt Required" := true; // Default to requiring receipt
-
-                    ExpenseReportLine.Insert(true);
-
-                    ExpenseReportLineCard.SetRecord(ExpenseReportLine);
-                    if ExpenseReportLineCard.RunModal() = Action::OK then begin
-                        CurrPage.ExpenseLines.Page.Update(false);
-                        CurrPage.ExpenseSummary.Page.Update(false);
-                    end;
-                end;
-            }
             action(CalculateTotals)
             {
                 ApplicationArea = All;
@@ -227,9 +194,12 @@ page 50153 "Expense Report Card"
     var
         SubmissionInProgress: Boolean;
 
+
     trigger OnAfterGetRecord()
     begin
         SubmissionInProgress := (Rec.Status = "Expense Status"::Submitted);
+        // Automatically recalculate totals when record is retrieved (lines may have changed)
+        CalculateReportTotals();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
