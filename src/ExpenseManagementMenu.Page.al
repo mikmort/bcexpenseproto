@@ -105,6 +105,14 @@ page 50198 "Expense Management Menu"
             group(PolicyAndSetup)
             {
                 Caption = 'Policy & Setup';
+                action(GettingStarted)
+                {
+                    Caption = 'Getting Started';
+                    ApplicationArea = All;
+                    RunObject = page "Expense Management Getting Started";
+                    ToolTip = 'Get started with the expense management system - setup guide and overview.';
+                    Image = TileInfo;
+                }
                 action(ExpensePoliciesList)
                 {
                     Caption = 'Expense Policies';
@@ -118,6 +126,22 @@ page 50198 "Expense Management Menu"
                     ApplicationArea = All;
                     RunObject = page "Expense Posting Groups List";
                     ToolTip = 'Manage expense posting groups.';
+                }
+                action(ExpenseManagementSetupWizard)
+                {
+                    Caption = 'Setup Wizard';
+                    ApplicationArea = All;
+                    RunObject = page "Expense Management Setup Wizard";
+                    ToolTip = 'Run the guided setup wizard to configure the expense management system.';
+                    Image = SetupColumns;
+                }
+                action(ExpenseSetupChecklist)
+                {
+                    Caption = 'Setup Checklist';
+                    ApplicationArea = All;
+                    RunObject = page "Expense Setup Checklist";
+                    ToolTip = 'Review the setup status and complete any missing configuration.';
+                    Image = CheckList;
                 }
                 action(ExpenseManagementSetup)
                 {
