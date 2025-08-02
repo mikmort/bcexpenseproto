@@ -24,12 +24,19 @@ page 50198 "Expense Management Menu"
             group(ExpenseReports)
             {
                 Caption = 'Expense Reports';
+                action(MyExpenseReportsList)
+                {
+                    Caption = 'My Expense Reports';
+                    ApplicationArea = All;
+                    RunObject = page "My Expense Reports List";
+                    ToolTip = 'View expense reports where you are the author or involved in approving.';
+                }
                 action(ExpenseReportsList)
                 {
-                    Caption = 'Expense Reports';
+                    Caption = 'All Expense Reports';
                     ApplicationArea = All;
                     RunObject = page "Expense Reports List";
-                    ToolTip = 'View and manage expense reports.';
+                    ToolTip = 'View and manage all expense reports.';
                 }
                 action(PostedExpenseReportsList)
                 {
