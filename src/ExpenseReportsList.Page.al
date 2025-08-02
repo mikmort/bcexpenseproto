@@ -44,10 +44,14 @@ page 50152 "Expense Reports List"
                     ExpenseReport: Record "Expense Reports";
                     ExpenseReportCard: Page "Expense Report Card";
                 begin
-                    Clear(ExpenseReport);
+                    // Create a new record and insert it to get a proper primary key
                     ExpenseReport.Init();
+                    ExpenseReport.Insert(true); // This will trigger OnInsert and assign ID
+                    
+                    // Open the card for the new record
                     ExpenseReportCard.SetRecord(ExpenseReport);
-                    ExpenseReportCard.Run();
+                    ExpenseReportCard.RunModal();
+                    CurrPage.Update(false);
                 end;
             }
         }

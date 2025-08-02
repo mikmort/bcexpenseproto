@@ -1,4 +1,4 @@
-codeunit 50200 "Expense Setup Data"
+codeunit 50197 "Expense Setup Data"
 {
     // Codeunit to create realistic setup data for the Expense Management system
     // This data represents good defaults that would make sense for any US customer
@@ -17,6 +17,7 @@ codeunit 50200 "Expense Setup Data"
         CreateExpenseSubcategories();
         CreateExpenseLocations();
         CreatePaymentMethods();
+        CreateNumberSeries();
         CreateExpenseManagementSetup();
         CreateExpensePolicies();
 
@@ -109,7 +110,7 @@ codeunit 50200 "Expense Setup Data"
         Category: Record "Expense Categories";
     begin
         // Comprehensive list of expense categories for US businesses
-        
+
         // Travel categories
         if not Category.Get('AIRFARE') then begin
             Category.Init();
@@ -412,9 +413,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'NYC';
             Location.Description := 'New York City, NY';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'NY';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -422,9 +422,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'CHI';
             Location.Description := 'Chicago, IL';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'IL';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -432,9 +431,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'LAX';
             Location.Description := 'Los Angeles, CA';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'CA';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -442,9 +440,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'ATL';
             Location.Description := 'Atlanta, GA';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'GA';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -452,9 +449,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'SEA';
             Location.Description := 'Seattle, WA';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'WA';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -462,9 +458,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'DFW';
             Location.Description := 'Dallas, TX';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'TX';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -472,9 +467,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'BOS';
             Location.Description := 'Boston, MA';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'MA';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -482,9 +476,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'MIA';
             Location.Description := 'Miami, FL';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'FL';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -492,9 +485,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'DEN';
             Location.Description := 'Denver, CO';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'CO';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -502,9 +494,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'LAS';
             Location.Description := 'Las Vegas, NV';
-            Location."Country Code" := 'US';
-            Location."State Code" := 'NV';
-            Location.Active := true;
+            Location."Country Region Code" := 'US';
+
             Location.Insert();
         end;
 
@@ -513,9 +504,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'LON';
             Location.Description := 'London, UK';
-            Location."Country Code" := 'GB';
-            Location."State Code" := '';
-            Location.Active := true;
+            Location."Country Region Code" := 'GB';
+
             Location.Insert();
         end;
 
@@ -523,9 +513,8 @@ codeunit 50200 "Expense Setup Data"
             Location.Init();
             Location."Location Code" := 'TOR';
             Location.Description := 'Toronto, Canada';
-            Location."Country Code" := 'CA';
-            Location."State Code" := 'ON';
-            Location.Active := true;
+            Location."Country Region Code" := 'CA';
+
             Location.Insert();
         end;
     end;
@@ -603,7 +592,7 @@ codeunit 50200 "Expense Setup Data"
         Policy: Record "Expense Policies";
     begin
         // Common US business expense policies
-        
+
         // Daily meal allowance policy
         if not Policy.Get(1) then begin
             Policy.Init();
@@ -686,6 +675,54 @@ codeunit 50200 "Expense Setup Data"
             Policy."Effective From" := Today() - 365;
             Policy."Effective To" := Today() + 365;
             Policy.Insert();
+        end;
+    end;
+
+    local procedure CreateNumberSeries()
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        // Create Expense Report Number Series
+        if not NoSeries.Get('EXP-REPORT') then begin
+            NoSeries.Init();
+            NoSeries.Code := 'EXP-REPORT';
+            NoSeries.Description := 'Expense Reports';
+            NoSeries."Default Nos." := true;
+            NoSeries."Manual Nos." := false;
+            NoSeries.Insert();
+
+            // Create number series line
+            NoSeriesLine.Init();
+            NoSeriesLine."Series Code" := 'EXP-REPORT';
+            NoSeriesLine."Line No." := 10000;
+            NoSeriesLine."Starting Date" := DMY2Date(1, 1, 2020);
+            NoSeriesLine."Starting No." := 'EXP-001';
+            NoSeriesLine."Ending No." := 'EXP-999999';
+            NoSeriesLine."Increment-by No." := 1;
+            NoSeriesLine.Open := true;
+            NoSeriesLine.Insert();
+        end;
+
+        // Create Posted Expense Report Number Series
+        if not NoSeries.Get('POSTED-EXP') then begin
+            NoSeries.Init();
+            NoSeries.Code := 'POSTED-EXP';
+            NoSeries.Description := 'Posted Expense Reports';
+            NoSeries."Default Nos." := true;
+            NoSeries."Manual Nos." := false;
+            NoSeries.Insert();
+
+            // Create number series line
+            NoSeriesLine.Init();
+            NoSeriesLine."Series Code" := 'POSTED-EXP';
+            NoSeriesLine."Line No." := 10000;
+            NoSeriesLine."Starting Date" := DMY2Date(1, 1, 2020);
+            NoSeriesLine."Starting No." := 'PEXP-001';
+            NoSeriesLine."Ending No." := 'PEXP-999999';
+            NoSeriesLine."Increment-by No." := 1;
+            NoSeriesLine.Open := true;
+            NoSeriesLine.Insert();
         end;
     end;
 }

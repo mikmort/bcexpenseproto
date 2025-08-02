@@ -127,12 +127,9 @@ page 50199 "Expense Demo Data Setup"
                 trigger OnAction()
                 var
                     DemoDataSetup: Codeunit "Expense Demo Data Setup";
-                    TempInteger: Record Integer temporary;
                 begin
                     if Confirm('This will create both setup and demo data for the Expense Management system. Continue?', false) then begin
-                        TempInteger.Number := 1;
-                        TempInteger.Insert();
-                        DemoDataSetup.Run(TempInteger);
+                        DemoDataSetup.CreateAllData();
                         CurrPage.Update();
                     end;
                 end;

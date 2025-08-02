@@ -71,6 +71,29 @@ page 50168 "Expense Management Setup"
         }
     }
 
+    actions
+    {
+        area(processing)
+        {
+            action(CreateSetupData)
+            {
+                ApplicationArea = All;
+                Caption = 'Create Setup Data';
+                ToolTip = 'Creates default setup data including number series, categories, payment methods, and other configuration.';
+                Image = Setup;
+
+                trigger OnAction()
+                var
+                    SetupData: Codeunit "Expense Setup Data";
+                    IntegerRec: Record Integer;
+                begin
+                    SetupData.Run(IntegerRec);
+                    CurrPage.Update();
+                end;
+            }
+        }
+    }
+
     var
         NoSeriesRec: Record "No. Series";
 }
