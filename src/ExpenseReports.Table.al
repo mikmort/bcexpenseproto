@@ -7,6 +7,19 @@ table 50102 "Expense Reports"
         {
             Caption = 'Report ID';
             DataClassification = ToBeClassified;
+
+            trigger OnValidate()
+            var
+                ExpenseSetup: Record "Expense Management Setup";
+                NoSeries: Codeunit "No. Series";
+            begin
+                if "Report Id" <> xRec."Report Id" then begin
+                    if ExpenseSetup.Get(1) then begin
+                        NoSeries.TestManual(ExpenseSetup."Expense Report No. Sequence");
+                        "No. Series" := '';
+                    end;
+                end;
+            end;
         }
         field(2; "Employee Id"; Code[20])
         {
@@ -82,6 +95,13 @@ table 50102 "Expense Reports"
             Caption = 'Modified Date Time';
             DataClassification = ToBeClassified;
         }
+        field(16; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            DataClassification = ToBeClassified;
+            TableRelation = "No. Series".Code;
+            Editable = false;
+        }
     }
     keys
     {
@@ -90,4 +110,107 @@ table 50102 "Expense Reports"
             Clustered = true;
         }
     }
+
+    trigger OnInsert()
+    var
+        ExpenseSetup: Record "Expense Management Setup";
+        NoSeries: Codeunit "No. Series";
+        NoSeriesRecord: Record "No. Series";
+    begin
+        if "Report Id" = '' then begin
+            if not ExpenseSetup.Get(1) then begin
+                // Create default setup if it doesn't exist
+                ExpenseSetup.Init();
+                ExpenseSetup."Setup Id" := 1;
+                ExpenseSetup."Expense Report No. Sequence" := 'EXP-REPORT';
+                ExpenseSetup."Posted Expense Report No Seq." := 'POSTED-EXP';
+                ExpenseSetup."Enable Expense Agent" := true;
+                ExpenseSetup.Insert();
+            end;
+            
+            // Check if number series exists, if not create a simple fallback ID
+            if NoSeriesRecord.Get(ExpenseSetup."Expense Report No. Sequence") then begin
+                ExpenseSetup.TestField("Expense Report No. Sequence");
+                "Report Id" := NoSeries.GetNextNo(ExpenseSetup."Expense Report No. Sequence", Today(), true);
+                "No. Series" := ExpenseSetup."Expense Report No. Sequence";
+            end else begin
+                // Fallback: Generate a simple ID when number series not configured
+                "Report Id" := GenerateFallbackId();
+            end;
+        end;
+        
+        // Set smart defaults when inserting new records
+        if "Report Date" = 0D then
+            "Report Date" := GetValidDateForEntry();
+        if "Posting Date" = 0D then
+            "Posting Date" := GetValidDateForEntry();
+        // Always set status to Draft for new records
+        Status := "Expense Status"::Draft;
+        if "Created Date Time" = 0DT then
+            "Created Date Time" := CurrentDateTime();
+        if "Created By" = '' then
+            "Created By" := UserId();
+    end;
+
+    trigger OnModify()
+    begin
+        "Modified Date Time" := CurrentDateTime();
+    end;
+
+    procedure AssistEdit(OldExpenseReport: Record "Expense Reports"): Boolean
+    var
+        ExpenseReport: Record "Expense Reports";
+        ExpenseSetup: Record "Expense Management Setup";
+        NoSeries: Codeunit "No. Series";
+    begin
+        ExpenseReport := Rec;
+        if not ExpenseSetup.Get(1) then
+            exit(false);
+        ExpenseSetup.TestField("Expense Report No. Sequence");
+        if NoSeries.LookupRelatedNoSeries(ExpenseSetup."Expense Report No. Sequence", OldExpenseReport."No. Series", ExpenseReport."No. Series") then begin
+            ExpenseReport."Report Id" := NoSeries.GetNextNo(ExpenseReport."No. Series", ExpenseReport."Report Date", true);
+            Rec := ExpenseReport;
+            exit(true);
+        end;
+    end;
+
+    local procedure GetValidDateForEntry(): Date
+    var
+        TargetDate: Date;
+        TargetMonth: Integer;
+    begin
+        // Start with today's date
+        TargetDate := Today();
+        TargetMonth := Date2DMY(TargetDate, 2);
+
+        // Check if current month is allowed (11, 12, 01, 02)
+        if TargetMonth in [1, 2, 11, 12] then
+            exit(TargetDate);
+
+        // If current date is not in allowed range, use February 15 of current year
+        // This provides a reasonable default for data entry
+        exit(DMY2Date(15, 2, Date2DMY(TargetDate, 3)));
+    end;
+
+    local procedure GenerateFallbackId(): Code[30]
+    var
+        ExpenseReport: Record "Expense Reports";
+        Counter: Integer;
+        ProposedId: Code[30];
+    begin
+        // Generate a fallback ID in format EXP-NNN when number series not available
+        Counter := 1;
+        repeat
+            ProposedId := 'EXP-' + Format(Counter, 3, '<Integer,3><Filler Character,0>');
+            
+            ExpenseReport.SetRange("Report Id", ProposedId);
+            if ExpenseReport.IsEmpty() then
+                exit(ProposedId);
+                
+            Counter += 1;
+        until Counter > 999;
+        
+        // Final fallback - use timestamp
+        exit('EXP-' + Format(Random(99999), 0, '<Integer,5><Filler Character,0>'));
+    end;
 }

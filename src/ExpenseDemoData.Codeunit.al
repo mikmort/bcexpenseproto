@@ -1,4 +1,4 @@
-codeunit 50201 "Expense Demo Data"
+codeunit 50198 "Expense Demo Data"
 {
     // Codeunit to create demo/example data for the Expense Management system
     // This data represents sample transactions for demonstration purposes only
@@ -22,6 +22,33 @@ codeunit 50201 "Expense Demo Data"
         CreateDemoPerDiemExpenses();
 
         Message('Demo data creation completed successfully!');
+    end;
+
+    local procedure GetValidDate(DaysOffset: Integer): Date
+    var
+        TargetDate: Date;
+        TargetMonth: Integer;
+    begin
+        // Calculate the target date
+        TargetDate := Today() + DaysOffset;
+        TargetMonth := Date2DMY(TargetDate, 2);
+
+        // Check if the month is allowed (11, 12, 01, 02)
+        if TargetMonth in [1, 2, 11, 12] then
+            exit(TargetDate);
+
+        // If current date is not in allowed range, find the nearest valid date
+        // If we're in month 3-10, use February of current year
+        if TargetMonth in [3, 4, 5, 6, 7, 8, 9, 10] then
+            exit(DMY2Date(15, 2, Date2DMY(TargetDate, 3)));
+
+        // Default fallback to February 15 of current year
+        exit(DMY2Date(15, 2, Date2DMY(Today(), 3)));
+    end;
+
+    local procedure GetValidDateInPast(DaysAgo: Integer): Date
+    begin
+        exit(GetValidDate(-DaysAgo));
     end;
 
     local procedure CreateDemoEmployees()
@@ -96,11 +123,11 @@ codeunit 50201 "Expense Demo Data"
             Report."Employee Id" := 'EMP001';
             Report.Purpose := 'Client Meeting - NYC';
             Report.Destination := 'New York City, NY';
-            Report."Report Date" := Today() - 30;
-            Report."Posting Date" := Today() - 25;
+            Report."Report Date" := GetValidDateInPast(30);
+            Report."Posting Date" := GetValidDateInPast(25);
             Report."Currency Code" := 'USD';
             Report."Total Amount" := 1250.00;
-            Report.Status := 'Submitted';
+            Report.Status := "Expense Status"::Submitted;
             Report."Payment Method Code" := 'PERSONAL';
             Report."Receipts Attached" := true;
             Report."Created By" := UserId();
@@ -114,11 +141,11 @@ codeunit 50201 "Expense Demo Data"
             Report."Employee Id" := 'EMP002';
             Report.Purpose := 'Technical Conference - Chicago';
             Report.Destination := 'Chicago, IL';
-            Report."Report Date" := Today() - 20;
-            Report."Posting Date" := Today() - 15;
+            Report."Report Date" := GetValidDateInPast(20);
+            Report."Posting Date" := GetValidDateInPast(15);
             Report."Currency Code" := 'USD';
             Report."Total Amount" := 980.50;
-            Report.Status := 'Approved';
+            Report.Status := "Expense Status"::Approved;
             Report."Payment Method Code" := 'CORP-CARD';
             Report."Receipts Attached" := true;
             Report."Created By" := UserId();
@@ -132,11 +159,11 @@ codeunit 50201 "Expense Demo Data"
             Report."Employee Id" := 'EMP003';
             Report.Purpose := 'European Sales Meeting';
             Report.Destination := 'London, UK';
-            Report."Report Date" := Today() - 10;
-            Report."Posting Date" := Today() - 5;
+            Report."Report Date" := GetValidDateInPast(10);
+            Report."Posting Date" := GetValidDateInPast(5);
             Report."Currency Code" := 'GBP';
             Report."Total Amount" := 875.25;
-            Report.Status := 'Draft';
+            Report.Status := "Expense Status"::Draft;
             Report."Payment Method Code" := 'PERSONAL';
             Report."Receipts Attached" := false;
             Report."Created By" := UserId();
@@ -150,11 +177,11 @@ codeunit 50201 "Expense Demo Data"
             Report."Employee Id" := 'EMP004';
             Report.Purpose := 'Office Supplies Purchase';
             Report.Destination := 'Local Office';
-            Report."Report Date" := Today() - 5;
-            Report."Posting Date" := Today();
+            Report."Report Date" := GetValidDateInPast(5);
+            Report."Posting Date" := GetValidDateInPast(2);
             Report."Currency Code" := 'USD';
             Report."Total Amount" := 125.75;
-            Report.Status := 'Submitted';
+            Report.Status := "Expense Status"::Submitted;
             Report."Payment Method Code" := 'CASH';
             Report."Receipts Attached" := true;
             Report."Created By" := UserId();
@@ -176,7 +203,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Line Id" := LineId;
             Line."Report Id" := 'EXP-2025-001';
             Line."Line Number" := 10000;
-            Line."Expense Date" := Today() - 30;
+            Line."Expense Date" := GetValidDateInPast(30);
             Line."Category Code" := 'AIRFARE';
             Line."Subcategory Code" := 'DOMESTIC';
             Line."Currency Code" := 'USD';
@@ -187,7 +214,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Payment Method Code" := 'PERSONAL';
             Line."Receipt Required" := true;
             Line.Description := 'Flight to New York for client meeting';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -197,7 +224,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Line Id" := LineId;
             Line."Report Id" := 'EXP-2025-001';
             Line."Line Number" := 20000;
-            Line."Expense Date" := Today() - 29;
+            Line."Expense Date" := GetValidDateInPast(29);
             Line."Category Code" := 'HOTEL';
             Line."Currency Code" := 'USD';
             Line.Amount := 320.00;
@@ -207,7 +234,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Payment Method Code" := 'PERSONAL';
             Line."Receipt Required" := true;
             Line.Description := 'Hotel accommodation - 2 nights';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -217,7 +244,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Line Id" := LineId;
             Line."Report Id" := 'EXP-2025-001';
             Line."Line Number" := 30000;
-            Line."Expense Date" := Today() - 29;
+            Line."Expense Date" := GetValidDateInPast(29);
             Line."Category Code" := 'MEALS';
             Line."Subcategory Code" := 'DINNER';
             Line."Currency Code" := 'USD';
@@ -228,7 +255,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Payment Method Code" := 'PERSONAL';
             Line."Receipt Required" := true;
             Line.Description := 'Business dinner with client';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -238,7 +265,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Line Id" := LineId;
             Line."Report Id" := 'EXP-2025-001';
             Line."Line Number" := 40000;
-            Line."Expense Date" := Today() - 28;
+            Line."Expense Date" := GetValidDateInPast(28);
             Line."Category Code" := 'TAXI';
             Line."Currency Code" := 'USD';
             Line.Amount := 45.00;
@@ -248,7 +275,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Payment Method Code" := 'PERSONAL';
             Line."Receipt Required" := true;
             Line.Description := 'Airport transfers and local transportation';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -259,7 +286,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Line Id" := LineId;
             Line."Report Id" := 'EXP-2025-002';
             Line."Line Number" := 10000;
-            Line."Expense Date" := Today() - 20;
+            Line."Expense Date" := GetValidDateInPast(20);
             Line."Category Code" := 'TRAINING';
             Line."Subcategory Code" := 'CONFERENCE';
             Line."Currency Code" := 'USD';
@@ -270,7 +297,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Payment Method Code" := 'CORP-CARD';
             Line."Receipt Required" := true;
             Line.Description := 'TechCon 2025 registration fee';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -280,7 +307,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Line Id" := LineId;
             Line."Report Id" := 'EXP-2025-002';
             Line."Line Number" := 20000;
-            Line."Expense Date" := Today() - 19;
+            Line."Expense Date" := GetValidDateInPast(19);
             Line."Category Code" := 'TAXI';
             Line."Currency Code" := 'USD';
             Line.Amount := 35.50;
@@ -290,7 +317,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Payment Method Code" := 'CORP-CARD';
             Line."Receipt Required" := true;
             Line.Description := 'Airport taxi';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -301,7 +328,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Line Id" := LineId;
             Line."Report Id" := 'EXP-2025-004';
             Line."Line Number" := 10000;
-            Line."Expense Date" := Today() - 5;
+            Line."Expense Date" := GetValidDateInPast(5);
             Line."Category Code" := 'OFFICE-SUPPLY';
             Line."Currency Code" := 'USD';
             Line.Amount := 125.75;
@@ -311,7 +338,7 @@ codeunit 50201 "Expense Demo Data"
             Line."Payment Method Code" := 'CASH';
             Line."Receipt Required" := true;
             Line.Description := 'Printer paper, pens, and folders';
-            Line.Status := 'Submitted';
+            Line.Status := "Expense Status"::Submitted;
             Line.Insert();
         end;
     end;
@@ -438,8 +465,8 @@ codeunit 50201 "Expense Demo Data"
             ItemLine.Init();
             ItemLine."Itemization Line Id" := LineId;
             ItemLine."Itemization Id" := 1;
-            ItemLine."Start Date" := Today() - 29;
-            ItemLine."End Date" := Today() - 29;
+            ItemLine."Start Date" := GetValidDateInPast(29);
+            ItemLine."End Date" := GetValidDateInPast(29);
             ItemLine.Amount := 18.00;
             ItemLine.Description := 'Appetizers for 3 people';
             ItemLine."Expense Location Code" := 'NYC';
@@ -452,8 +479,8 @@ codeunit 50201 "Expense Demo Data"
             ItemLine.Init();
             ItemLine."Itemization Line Id" := LineId;
             ItemLine."Itemization Id" := 1;
-            ItemLine."Start Date" := Today() - 29;
-            ItemLine."End Date" := Today() - 29;
+            ItemLine."Start Date" := GetValidDateInPast(29);
+            ItemLine."End Date" := GetValidDateInPast(29);
             ItemLine.Amount := 54.00;
             ItemLine.Description := 'Main courses for 3 people';
             ItemLine."Expense Location Code" := 'NYC';
@@ -466,8 +493,8 @@ codeunit 50201 "Expense Demo Data"
             ItemLine.Init();
             ItemLine."Itemization Line Id" := LineId;
             ItemLine."Itemization Id" := 1;
-            ItemLine."Start Date" := Today() - 29;
-            ItemLine."End Date" := Today() - 29;
+            ItemLine."Start Date" := GetValidDateInPast(29);
+            ItemLine."End Date" := GetValidDateInPast(29);
             ItemLine.Amount := 13.00;
             ItemLine.Description := 'Beverages and coffee';
             ItemLine."Expense Location Code" := 'NYC';
@@ -526,7 +553,7 @@ codeunit 50201 "Expense Demo Data"
             PerDiem."Per Diem Id" := PerDiemId;
             PerDiem."Line Id" := 3; // Related to meals line
             PerDiem."Employee Id" := 'EMP001';
-            PerDiem."Expense Date" := Today() - 29;
+            PerDiem."Expense Date" := GetValidDateInPast(29);
             PerDiem."Expense Location Code" := 'NYC';
             PerDiem."Daily Rate" := 85.00; // NYC daily meal rate
             PerDiem."Itemized Amount" := 85.00;
@@ -540,7 +567,7 @@ codeunit 50201 "Expense Demo Data"
             PerDiem."Per Diem Id" := PerDiemId;
             PerDiem."Line Id" := 0; // General per diem
             PerDiem."Employee Id" := 'EMP002';
-            PerDiem."Expense Date" := Today() - 20;
+            PerDiem."Expense Date" := GetValidDateInPast(20);
             PerDiem."Expense Location Code" := 'CHI';
             PerDiem."Daily Rate" := 60.00; // Standard US daily meal rate
             PerDiem."Itemized Amount" := 60.00;

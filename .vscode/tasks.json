@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "AL: Build",
+			"type": "shell",
+			"command": "al:compile",
+			"group": "build",
+			"problemMatcher": [
+				"$al"
+			],
+			"isBackground": false
+		}
+	]
+}

@@ -14,28 +14,40 @@ codeunit 50199 "Expense Demo Data Setup"
     procedure CreateSetupDataOnly()
     var
         SetupDataCodeunit: Codeunit "Expense Setup Data";
+        TempInteger: Record Integer temporary;
     begin
-        SetupDataCodeunit.Run();
+        TempInteger.Number := 1;
+        TempInteger.Insert();
+        SetupDataCodeunit.Run(TempInteger);
     end;
 
     procedure CreateDemoDataOnly()
     var
         DemoDataCodeunit: Codeunit "Expense Demo Data";
+        TempInteger: Record Integer temporary;
     begin
-        DemoDataCodeunit.Run();
+        TempInteger.Number := 1;
+        TempInteger.Insert();
+        DemoDataCodeunit.Run(TempInteger);
     end;
 
     local procedure CreateSetupData()
     var
         SetupDataCodeunit: Codeunit "Expense Setup Data";
+        TempInteger: Record Integer temporary;
     begin
-        SetupDataCodeunit.Run();
+        TempInteger.Number := 1;
+        TempInteger.Insert();
+        SetupDataCodeunit.Run(TempInteger);
     end;
 
     local procedure CreateDemoData()
     var
         DemoDataCodeunit: Codeunit "Expense Demo Data";
+        TempInteger: Record Integer temporary;
     begin
-        DemoDataCodeunit.Run();
+        TempInteger.Number := 1;
+        TempInteger.Insert();
+        DemoDataCodeunit.Run(TempInteger);
     end;
 }
