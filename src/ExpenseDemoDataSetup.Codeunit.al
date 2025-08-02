@@ -428,7 +428,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Report."Posting Date" := Today() - 25;
             Report."Currency Code" := 'USD';
             Report."Total Amount" := 1250.00;
-            Report.Status := 'Submitted';
+            Report.Status := "Expense Status"::Submitted;
             Report."Payment Method Code" := 'PERSONAL';
             Report."Receipts Attached" := true;
             Report."Created By" := UserId();
@@ -446,7 +446,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Report."Posting Date" := Today() - 15;
             Report."Currency Code" := 'USD';
             Report."Total Amount" := 980.50;
-            Report.Status := 'Approved';
+            Report.Status := "Expense Status"::Approved;
             Report."Payment Method Code" := 'CORP-CARD';
             Report."Receipts Attached" := true;
             Report."Created By" := UserId();
@@ -464,7 +464,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Report."Posting Date" := Today() - 5;
             Report."Currency Code" := 'GBP';
             Report."Total Amount" := 875.25;
-            Report.Status := 'Draft';
+            Report.Status := "Expense Status"::Draft;
             Report."Payment Method Code" := 'PERSONAL';
             Report."Receipts Attached" := false;
             Report."Created By" := UserId();
@@ -482,7 +482,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Report."Posting Date" := Today();
             Report."Currency Code" := 'USD';
             Report."Total Amount" := 125.75;
-            Report.Status := 'Submitted';
+            Report.Status := "Expense Status"::Submitted;
             Report."Payment Method Code" := 'CASH';
             Report."Receipts Attached" := true;
             Report."Created By" := UserId();
@@ -515,7 +515,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Line."Payment Method Code" := 'PERSONAL';
             Line."Receipt Required" := true;
             Line.Description := 'Flight to New York for client meeting';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -535,7 +535,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Line."Payment Method Code" := 'PERSONAL';
             Line."Receipt Required" := true;
             Line.Description := 'Hotel accommodation - 2 nights';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -556,7 +556,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Line."Payment Method Code" := 'PERSONAL';
             Line."Receipt Required" := true;
             Line.Description := 'Business dinner with client';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -577,7 +577,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Line."Payment Method Code" := 'CORP-CARD';
             Line."Receipt Required" := true;
             Line.Description := 'Conference registration fee';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -597,7 +597,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Line."Payment Method Code" := 'CORP-CARD';
             Line."Receipt Required" := true;
             Line.Description := 'Airport taxi';
-            Line.Status := 'Approved';
+            Line.Status := "Expense Status"::Approved;
             Line.Insert();
         end;
 
@@ -617,7 +617,7 @@ codeunit 50199 "Expense Demo Data Setup"
             Line."Payment Method Code" := 'CASH';
             Line."Receipt Required" := true;
             Line.Description := 'Printer paper and office supplies';
-            Line.Status := 'Submitted';
+            Line.Status := "Expense Status"::Submitted;
             Line.Insert();
         end;
     end;
