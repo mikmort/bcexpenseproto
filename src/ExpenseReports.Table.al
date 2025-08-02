@@ -59,7 +59,7 @@ table 50102 "Expense Reports"
             DataClassification = ToBeClassified;
             DecimalPlaces = 0 : 2;
         }
-        field(9; Status; Code[30])
+        field(9; Status; Enum "Expense Status")
         {
             Caption = 'Status';
             DataClassification = ToBeClassified;

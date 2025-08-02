@@ -100,7 +100,7 @@ table 50103 "Expense Report Lines"
             DataClassification = ToBeClassified;
             TableRelation = Vendor."No.";
         }
-        field(18; Status; Code[30])
+        field(18; Status; Enum "Expense Status")
         {
             Caption = 'Status';
             DataClassification = ToBeClassified;

@@ -221,7 +221,7 @@ page 50153 "Expense Report Card"
 
     trigger OnAfterGetRecord()
     begin
-        SubmissionInProgress := (Rec.Status = 'Submitted');
+        SubmissionInProgress := (Rec.Status = "Expense Status"::Submitted);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

@@ -3,7 +3,7 @@ page 50199 "Expense Demo Data Setup"
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = Administration;
-    Caption = 'Expense Management Demo Data Setup';
+    Caption = 'Expense Management Data Setup';
 
     layout
     {
@@ -11,7 +11,7 @@ page 50199 "Expense Demo Data Setup"
         {
             group(General)
             {
-                Caption = 'Demo Data Creation';
+                Caption = 'Data Creation Options';
                 field(InfoText; InfoText)
                 {
                     Caption = 'Information';
@@ -21,9 +21,33 @@ page 50199 "Expense Demo Data Setup"
                 }
             }
 
+            group(SetupDataInfo)
+            {
+                Caption = 'Setup Data (Realistic Defaults)';
+                field(SetupInfoText; SetupInfoText)
+                {
+                    Caption = 'Setup Data Description';
+                    MultiLine = true;
+                    Editable = false;
+                    ShowCaption = false;
+                }
+            }
+
+            group(DemoDataInfo)
+            {
+                Caption = 'Demo Data (Sample Transactions)';
+                field(DemoInfoText; DemoInfoText)
+                {
+                    Caption = 'Demo Data Description';
+                    MultiLine = true;
+                    Editable = false;
+                    ShowCaption = false;
+                }
+            }
+
             group(DataCreated)
             {
-                Caption = 'Demo Data Summary';
+                Caption = 'Current Data Summary';
                 field(EmployeeCount; EmployeeCount)
                 {
                     Caption = 'Employees Created';
@@ -57,18 +81,55 @@ page 50199 "Expense Demo Data Setup"
     {
         area(Processing)
         {
-            action(CreateDemoData)
+            action(CreateSetupDataOnly)
             {
-                Caption = 'Create Demo Data';
+                Caption = 'Create Setup Data Only';
                 ApplicationArea = All;
                 Image = Setup;
+                ToolTip = 'Create realistic default data suitable for any US customer (categories, policies, payment methods, etc.)';
+
+                trigger OnAction()
+                var
+                    DemoDataSetup: Codeunit "Expense Demo Data Setup";
+                begin
+                    if Confirm('This will create realistic setup data for the Expense Management system. Continue?', false) then begin
+                        DemoDataSetup.CreateSetupDataOnly();
+                        CurrPage.Update();
+                    end;
+                end;
+            }
+
+            action(CreateDemoDataOnly)
+            {
+                Caption = 'Create Demo Data Only';
+                ApplicationArea = All;
+                Image = TestDatabase;
+                ToolTip = 'Create sample demonstration data (employees, expense reports, transactions)';
+
+                trigger OnAction()
+                var
+                    DemoDataSetup: Codeunit "Expense Demo Data Setup";
+                begin
+                    if Confirm('This will create sample demo data for the Expense Management system. Continue?', false) then begin
+                        DemoDataSetup.CreateDemoDataOnly();
+                        CurrPage.Update();
+                    end;
+                end;
+            }
+
+            action(CreateAllData)
+            {
+                Caption = 'Create All Data (Setup + Demo)';
+                ApplicationArea = All;
+                Image = Database;
+                ToolTip = 'Create both setup data and demo data';
 
                 trigger OnAction()
                 var
                     DemoDataSetup: Codeunit "Expense Demo Data Setup";
                     TempInteger: Record Integer temporary;
                 begin
-                    if Confirm('This will create comprehensive demo data for the Expense Management system. Continue?', false) then begin
+                    if Confirm('This will create both setup and demo data for the Expense Management system. Continue?', false) then begin
                         TempInteger.Number := 1;
                         TempInteger.Insert();
                         DemoDataSetup.Run(TempInteger);
@@ -108,18 +169,23 @@ page 50199 "Expense Demo Data Setup"
 
     trigger OnOpenPage()
     begin
-        InfoText := 'This page allows you to create comprehensive demo data for the Expense Management system.' +
+        InfoText := 'Choose how to populate your Expense Management system:' +
                    '\' +
-                   '\Demo data includes:' +
-                   '\• 5 Sample employees with different currencies and legal entities' +
-                   '\• Expense categories, subcategories, and groups' +
-                   '\• Payment methods and posting groups' +
-                   '\• Sample expense reports with various statuses' +
-                   '\• Expense report lines with receipts and comments' +
-                   '\• Policy definitions and per diem settings' +
-                   '\• Itemizations and participant information' +
-                   '\' +
-                   '\Click "Create Demo Data" to populate all tables with realistic sample data.';
+                   '\• Setup Data Only: Create realistic defaults for any US customer' +
+                   '\• Demo Data Only: Create sample transactions for demonstration' +
+                   '\• All Data: Create both setup and demo data';
+
+        SetupInfoText := 'Setup Data includes realistic defaults suitable for any US customer:' +
+                        '\• Comprehensive expense categories (17 categories)' +
+                        '\• US business locations and payment methods' +
+                        '\• Common expense policies based on GSA rates' +
+                        '\• Posting groups for different expense types';
+
+        DemoInfoText := 'Demo Data includes sample transactions for demonstration:' +
+                       '\• 5 Sample employees with different currencies' +
+                       '\• 4 Example expense reports with various statuses' +
+                       '\• Expense report lines with receipts and comments' +
+                       '\• Itemizations and participant information';
 
         UpdateCounts();
     end;
@@ -188,6 +254,8 @@ page 50199 "Expense Demo Data Setup"
 
     var
         InfoText: Text;
+        SetupInfoText: Text;
+        DemoInfoText: Text;
         EmployeeCount: Integer;
         CategoryCount: Integer;
         ReportCount: Integer;
