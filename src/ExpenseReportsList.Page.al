@@ -4,6 +4,10 @@ page 50152 "Expense Reports List"
     SourceTable = "Expense Reports";
     ApplicationArea = All;
     UsageCategory = Lists;
+    Editable = false;
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = false;
 
     layout
     {
