@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Local BC Container",
+      "type": "al",
+      "request": "launch",
+      "server": "http://localhost:7049/BC",
+      "serverInstance": "BC",
+      "authentication": "UserPassword",
+      "userName": "ADMIN",
+      "password": "P@ssword1",
+      "tenant": "default",
+      "startupObjectType": "Page",
+      "startupObjectId": 22,
+      "schemaUpdateMode": "Recreate",
+      "useDevServer": false
+    }
+  ]
+}

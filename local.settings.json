@@ -1,0 +1,8 @@
+{
+  "bcAuthUser": "mikmort@hotmail.com",
+  "bcAuthPassword": "HOT!2345aisy",
+  "devcontainerPassword": "HOT!2345aisy",
+  "containerName": "bcserver",
+  "includeAL": true,
+  "assignDevEndpoint": true
+}
