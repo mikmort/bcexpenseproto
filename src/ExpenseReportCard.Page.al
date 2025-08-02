@@ -18,6 +18,12 @@ page 50153 "Expense Report Card"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the unique identifier for the expense report.';
+
+                    trigger OnAssistEdit()
+                    begin
+                        if Rec.AssistEdit(xRec) then
+                            CurrPage.Update();
+                    end;
                 }
                 field("Employee Id"; Rec."Employee Id")
                 {
@@ -93,6 +99,23 @@ page 50153 "Expense Report Card"
                     Editable = false;
                 }
             }
+
+            part(ExpenseLines; "Expense Report Lines Part")
+            {
+                ApplicationArea = All;
+                Caption = 'Expense Lines';
+                SubPageLink = "Report Id" = field("Report Id");
+                UpdatePropagation = Both;
+            }
+        }
+        area(factboxes)
+        {
+            part(ExpenseSummary; "Expense Report Summary FactBox")
+            {
+                ApplicationArea = All;
+                Caption = 'Summary';
+                SubPageLink = "Report Id" = field("Report Id");
+            }
         }
     }
 
@@ -106,11 +129,63 @@ page 50153 "Expense Report Card"
                 Caption = 'Submit Report';
                 Image = SendTo;
                 ToolTip = 'Submit the expense report for approval.';
+                Enabled = Rec.Status = 'Draft';
+
+                trigger OnAction()
+                var
+                    ExpenseReportLines: Record "Expense Report Lines";
+                begin
+                    // Validate that report has lines
+                    ExpenseReportLines.SetRange("Report Id", Rec."Report Id");
+                    if ExpenseReportLines.IsEmpty then begin
+                        Error('Cannot submit an expense report without expense lines.');
+                        exit;
+                    end;
+
+                    // Update status and submit
+                    Rec.Status := 'Submitted';
+                    Rec.Modify(true);
+                    CurrPage.Update(false);
+                    Message('Report submitted for approval.');
+                end;
+            }
+            action(AddExpenseLine)
+            {
+                ApplicationArea = All;
+                Caption = 'Add Expense Line';
+                Image = NewItem;
+                ToolTip = 'Add a new expense line to this report.';
+                Enabled = Rec.Status = 'Draft';
+
+                trigger OnAction()
+                var
+                    ExpenseReportLine: Record "Expense Report Lines";
+                    ExpenseReportLineCard: Page "Expense Report Line Card";
+                begin
+                    ExpenseReportLine.Init();
+                    ExpenseReportLine."Report Id" := Rec."Report Id";
+                    ExpenseReportLine."Line Number" := GetNextLineNumber();
+                    ExpenseReportLine.Insert(true);
+
+                    ExpenseReportLineCard.SetRecord(ExpenseReportLine);
+                    if ExpenseReportLineCard.RunModal() = Action::OK then begin
+                        CurrPage.ExpenseLines.Page.Update(false);
+                        CurrPage.ExpenseSummary.Page.Update(false);
+                    end;
+                end;
+            }
+            action(CalculateTotals)
+            {
+                ApplicationArea = All;
+                Caption = 'Calculate Totals';
+                Image = Calculate;
+                ToolTip = 'Recalculate the total amount from all expense lines.';
 
                 trigger OnAction()
                 begin
-                    // Implementation for submitting report
-                    Message('Report submitted for approval.');
+                    CalculateReportTotals();
+                    CurrPage.Update(false);
+                    Message('Totals have been recalculated.');
                 end;
             }
             action(PrintReport)
@@ -129,14 +204,14 @@ page 50153 "Expense Report Card"
         }
         area(Navigation)
         {
-            action(ExpenseLines)
+            action(ViewExpenseLines)
             {
                 ApplicationArea = All;
-                Caption = 'Expense Lines';
+                Caption = 'View All Expense Lines';
                 Image = Line;
                 RunObject = page "Expense Report Lines List";
                 RunPageLink = "Report Id" = field("Report Id");
-                ToolTip = 'View the individual expense lines for this report.';
+                ToolTip = 'View all expense lines in a separate page.';
             }
         }
     }
@@ -152,13 +227,58 @@ page 50153 "Expense Report Card"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."Report Date" := Today();
+        Rec."Posting Date" := Today();
         Rec."Created Date Time" := CurrentDateTime();
         Rec."Created By" := UserId();
+        Rec.Status := 'Draft';
+
+        // Set default currency if available
+        if Rec."Currency Code" = '' then
+            Rec."Currency Code" := GetDefaultCurrencyCode();
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
         Rec."Modified Date Time" := CurrentDateTime();
+    end;
+
+    local procedure GetNextLineNumber(): Integer
+    var
+        ExpenseReportLine: Record "Expense Report Lines";
+        MaxLineNo: Integer;
+    begin
+        ExpenseReportLine.SetRange("Report Id", Rec."Report Id");
+        if ExpenseReportLine.FindLast() then
+            MaxLineNo := ExpenseReportLine."Line Number";
+
+        exit(MaxLineNo + 1000);
+    end;
+
+    local procedure CalculateReportTotals()
+    var
+        ExpenseReportLine: Record "Expense Report Lines";
+        TotalAmount: Decimal;
+    begin
+        TotalAmount := 0;
+        ExpenseReportLine.SetRange("Report Id", Rec."Report Id");
+        if ExpenseReportLine.FindSet() then begin
+            repeat
+                TotalAmount += ExpenseReportLine."Reimbursable Amount";
+            until ExpenseReportLine.Next() = 0;
+        end;
+
+        Rec."Total Amount" := TotalAmount;
+        Rec.Modify(true);
+    end;
+
+    local procedure GetDefaultCurrencyCode(): Code[3]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        if GeneralLedgerSetup.Get() then
+            exit(GeneralLedgerSetup."LCY Code");
+
+        exit('');
     end;
 }
 

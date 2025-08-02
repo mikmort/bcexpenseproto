@@ -10,6 +10,7 @@ codeunit 50199 "Expense Demo Data Setup"
 
     local procedure CreateDemoData()
     begin
+        ClearExistingData();
         CreateEmployees();
         CreateExpenseGroups();
         CreateExpensePostingGroups();
@@ -18,11 +19,12 @@ codeunit 50199 "Expense Demo Data Setup"
         CreateExpenseLocations();
         CreatePaymentMethods();
         CreateExpenseManagementSetup();
+        Commit(); // Ensure setup is committed before creating expense reports
         CreateExpensePolicies();
         CreateExpenseReports();
-        CreateExpenseReportLines();
+        CreateExpenseReportLines(); // Re-enabled now that it works with auto-generated IDs
         CreateExpenseReceipts();
-        CreateExpenseComments();
+        CreateExpenseComments(); // Re-enabled with updated report IDs
         CreateExpenseItemizations();
         CreateExpenseItemizationLines();
         CreateExpenseParticipants();
@@ -359,7 +361,50 @@ codeunit 50199 "Expense Demo Data Setup"
     local procedure CreateExpenseManagementSetup()
     var
         Setup: Record "Expense Management Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
     begin
+        // Create number series for expense reports
+        if not NoSeries.Get('EXP-REPORT') then begin
+            NoSeries.Init();
+            NoSeries.Code := 'EXP-REPORT';
+            NoSeries.Description := 'Expense Reports';
+            NoSeries."Default Nos." := true;
+            NoSeries."Manual Nos." := true;
+            NoSeries.Insert();
+
+            // Create number series line
+            NoSeriesLine.Init();
+            NoSeriesLine."Series Code" := 'EXP-REPORT';
+            NoSeriesLine."Line No." := 10000;
+            NoSeriesLine."Starting Date" := Today();
+            NoSeriesLine."Starting No." := 'EXP-001';
+            NoSeriesLine."Ending No." := 'EXP-999999';
+            NoSeriesLine."Increment-by No." := 1;
+            NoSeriesLine.Insert();
+        end;
+
+        // Create number series for posted expense reports
+        if not NoSeries.Get('POSTED-EXP') then begin
+            NoSeries.Init();
+            NoSeries.Code := 'POSTED-EXP';
+            NoSeries.Description := 'Posted Expense Reports';
+            NoSeries."Default Nos." := true;
+            NoSeries."Manual Nos." := false;
+            NoSeries.Insert();
+
+            // Create number series line
+            NoSeriesLine.Init();
+            NoSeriesLine."Series Code" := 'POSTED-EXP';
+            NoSeriesLine."Line No." := 10000;
+            NoSeriesLine."Starting Date" := Today();
+            NoSeriesLine."Starting No." := 'PEXP-001';
+            NoSeriesLine."Ending No." := 'PEXP-999999';
+            NoSeriesLine."Increment-by No." := 1;
+            NoSeriesLine.Insert();
+        end;
+
+        // Create or update setup record
         if not Setup.Get(1) then begin
             Setup.Init();
             Setup."Setup Id" := 1;
@@ -367,6 +412,10 @@ codeunit 50199 "Expense Demo Data Setup"
             Setup."Posted Expense Report No Seq." := 'POSTED-EXP';
             Setup."Enable Expense Agent" := true;
             Setup.Insert();
+        end else begin
+            Setup."Expense Report No. Sequence" := 'EXP-REPORT';
+            Setup."Posted Expense Report No Seq." := 'POSTED-EXP';
+            Setup.Modify();
         end;
     end;
 
@@ -417,77 +466,102 @@ codeunit 50199 "Expense Demo Data Setup"
     local procedure CreateExpenseReports()
     var
         Report: Record "Expense Reports";
+        ReportId1, ReportId2, ReportId3, ReportId4 : Code[30];
     begin
-        if not Report.Get('EXP-2025-001') then begin
-            Report.Init();
-            Report."Report Id" := 'EXP-2025-001';
-            Report."Employee Id" := 'EMP001';
-            Report.Purpose := 'Client Meeting in New York';
-            Report.Destination := 'New York, NY';
-            Report."Report Date" := Today() - 30;
-            Report."Posting Date" := Today() - 25;
-            Report."Currency Code" := 'USD';
-            Report."Total Amount" := 1250.00;
-            Report.Status := 'Submitted';
-            Report."Payment Method Code" := 'PERSONAL';
-            Report."Receipts Attached" := true;
-            Report."Created By" := UserId();
-            Report."Created Date Time" := CurrentDateTime() - 720000; // 30 days ago
-            Report.Insert();
-        end;
+        // Create first expense report - let number series generate ID
+        Report.Init();
+        Report."Employee Id" := 'EMP001';
+        Report.Purpose := 'Client Meeting in New York';
+        Report.Destination := 'New York, NY';
+        Report."Report Date" := Today() - 30;
+        Report."Posting Date" := Today() - 25;
+        Report."Currency Code" := 'USD';
+        Report."Total Amount" := 1250.00;
+        Report.Status := 'Submitted';
+        Report."Payment Method Code" := 'PERSONAL';
+        Report."Receipts Attached" := true;
+        Report."Created By" := UserId();
+        Report."Created Date Time" := CurrentDateTime() - 720000; // 30 days ago
+        Report.Insert(true);
+        ReportId1 := Report."Report Id";
 
-        if not Report.Get('EXP-2025-002') then begin
-            Report.Init();
-            Report."Report Id" := 'EXP-2025-002';
-            Report."Employee Id" := 'EMP002';
-            Report.Purpose := 'Training Conference in Chicago';
-            Report.Destination := 'Chicago, IL';
-            Report."Report Date" := Today() - 20;
-            Report."Posting Date" := Today() - 15;
-            Report."Currency Code" := 'USD';
-            Report."Total Amount" := 980.50;
-            Report.Status := 'Approved';
-            Report."Payment Method Code" := 'CORP-CARD';
-            Report."Receipts Attached" := true;
-            Report."Created By" := UserId();
-            Report."Created Date Time" := CurrentDateTime() - 480000; // 20 days ago
-            Report.Insert();
-        end;
+        // Create second expense report
+        Report.Init();
+        Report."Employee Id" := 'EMP002';
+        Report.Purpose := 'Training Conference in Chicago';
+        Report.Destination := 'Chicago, IL';
+        Report."Report Date" := Today() - 20;
+        Report."Posting Date" := Today() - 15;
+        Report."Currency Code" := 'USD';
+        Report."Total Amount" := 980.50;
+        Report.Status := 'Approved';
+        Report."Payment Method Code" := 'CORP-CARD';
+        Report."Receipts Attached" := true;
+        Report."Created By" := UserId();
+        Report."Created Date Time" := CurrentDateTime() - 480000; // 20 days ago
+        Report.Insert(true);
+        ReportId2 := Report."Report Id";
 
-        if not Report.Get('EXP-2025-003') then begin
-            Report.Init();
-            Report."Report Id" := 'EXP-2025-003';
-            Report."Employee Id" := 'EMP003';
-            Report.Purpose := 'European Sales Meeting';
-            Report.Destination := 'London, UK';
-            Report."Report Date" := Today() - 10;
-            Report."Posting Date" := Today() - 5;
-            Report."Currency Code" := 'GBP';
-            Report."Total Amount" := 875.25;
-            Report.Status := 'Draft';
-            Report."Payment Method Code" := 'PERSONAL';
-            Report."Receipts Attached" := false;
-            Report."Created By" := UserId();
-            Report."Created Date Time" := CurrentDateTime() - 240000; // 10 days ago
-            Report.Insert();
-        end;
+        // Create third expense report
+        Report.Init();
+        Report."Employee Id" := 'EMP003';
+        Report.Purpose := 'European Sales Meeting';
+        Report.Destination := 'London, UK';
+        Report."Report Date" := Today() - 10;
+        Report."Posting Date" := Today() - 5;
+        Report."Currency Code" := 'GBP';
+        Report."Total Amount" := 875.25;
+        Report.Status := 'Draft';
+        Report."Payment Method Code" := 'PERSONAL';
+        Report."Receipts Attached" := false;
+        Report."Created By" := UserId();
+        Report."Created Date Time" := CurrentDateTime() - 240000; // 10 days ago
+        Report.Insert(true);
+        ReportId3 := Report."Report Id";
 
-        if not Report.Get('EXP-2025-004') then begin
-            Report.Init();
-            Report."Report Id" := 'EXP-2025-004';
-            Report."Employee Id" := 'EMP004';
-            Report.Purpose := 'Office Supplies Purchase';
-            Report.Destination := 'Local Office';
-            Report."Report Date" := Today() - 5;
-            Report."Posting Date" := Today();
-            Report."Currency Code" := 'USD';
-            Report."Total Amount" := 125.75;
-            Report.Status := 'Submitted';
-            Report."Payment Method Code" := 'CASH';
-            Report."Receipts Attached" := true;
-            Report."Created By" := UserId();
-            Report."Created Date Time" := CurrentDateTime() - 120000; // 5 days ago
-            Report.Insert();
+        // Create fourth expense report
+        Report.Init();
+        Report."Employee Id" := 'EMP004';
+        Report.Purpose := 'Office Supplies Purchase';
+        Report.Destination := 'Local Office';
+        Report."Report Date" := Today() - 5;
+        Report."Posting Date" := Today();
+        Report."Currency Code" := 'USD';
+        Report."Total Amount" := 125.75;
+        Report.Status := 'Submitted';
+        Report."Payment Method Code" := 'CASH';
+        Report."Receipts Attached" := true;
+        Report."Created By" := UserId();
+        Report."Created Date Time" := CurrentDateTime() - 120000; // 5 days ago
+        Report.Insert(true);
+        ReportId4 := Report."Report Id";
+
+        // Store the generated IDs for use in creating expense lines
+        SetDemoReportIds(ReportId1, ReportId2, ReportId3, ReportId4);
+    end;
+
+    var
+        DemoReportId1, DemoReportId2, DemoReportId3, DemoReportId4 : Code[30];
+
+    local procedure SetDemoReportIds(ReportId1: Code[30]; ReportId2: Code[30]; ReportId3: Code[30]; ReportId4: Code[30])
+    begin
+        DemoReportId1 := ReportId1;
+        DemoReportId2 := ReportId2;
+        DemoReportId3 := ReportId3;
+        DemoReportId4 := ReportId4;
+    end;
+
+    local procedure GetDemoReportId(ReportNumber: Integer): Code[30]
+    begin
+        case ReportNumber of
+            1:
+                exit(DemoReportId1);
+            2:
+                exit(DemoReportId2);
+            3:
+                exit(DemoReportId3);
+            4:
+                exit(DemoReportId4);
         end;
     end;
 
@@ -498,32 +572,30 @@ codeunit 50199 "Expense Demo Data Setup"
     begin
         LineId := 1;
 
-        // Lines for EXP-2025-001
-        if not Line.Get(LineId) then begin
-            Line.Init();
-            Line."Line Id" := LineId;
-            Line."Report Id" := 'EXP-2025-001';
-            Line."Line Number" := 10000;
-            Line."Expense Date" := Today() - 30;
-            Line."Category Code" := 'AIRFARE';
-            Line."Subcategory Code" := 'DOMESTIC';
-            Line."Currency Code" := 'USD';
-            Line.Amount := 450.00;
-            Line."Tax Amount" := 0.00;
-            Line."Reimbursable Amount" := 450.00;
-            Line."Expense Location Code" := 'NYC';
-            Line."Payment Method Code" := 'PERSONAL';
-            Line."Receipt Required" := true;
-            Line.Description := 'Flight to New York for client meeting';
-            Line.Status := 'Approved';
-            Line.Insert();
-        end;
+        // Lines for first report
+        Line.Init();
+        Line."Line Id" := LineId;
+        Line."Report Id" := GetDemoReportId(1);
+        Line."Line Number" := 10000;
+        Line."Expense Date" := Today() - 30;
+        Line."Category Code" := 'AIRFARE';
+        Line."Subcategory Code" := 'DOMESTIC';
+        Line."Currency Code" := 'USD';
+        Line.Amount := 450.00;
+        Line."Tax Amount" := 0.00;
+        Line."Reimbursable Amount" := 450.00;
+        Line."Expense Location Code" := 'NYC';
+        Line."Payment Method Code" := 'PERSONAL';
+        Line."Receipt Required" := true;
+        Line.Description := 'Flight to New York for client meeting';
+        Line.Status := 'Approved';
+        Line.Insert();
 
         LineId += 1;
         if not Line.Get(LineId) then begin
             Line.Init();
             Line."Line Id" := LineId;
-            Line."Report Id" := 'EXP-2025-001';
+            Line."Report Id" := GetDemoReportId(1);
             Line."Line Number" := 20000;
             Line."Expense Date" := Today() - 29;
             Line."Category Code" := 'HOTEL';
@@ -540,86 +612,78 @@ codeunit 50199 "Expense Demo Data Setup"
         end;
 
         LineId += 1;
-        if not Line.Get(LineId) then begin
-            Line.Init();
-            Line."Line Id" := LineId;
-            Line."Report Id" := 'EXP-2025-001';
-            Line."Line Number" := 30000;
-            Line."Expense Date" := Today() - 29;
-            Line."Category Code" := 'MEALS';
-            Line."Subcategory Code" := 'DINNER';
-            Line."Currency Code" := 'USD';
-            Line.Amount := 85.00;
-            Line."Tax Amount" := 6.80;
-            Line."Reimbursable Amount" := 85.00;
-            Line."Expense Location Code" := 'NYC';
-            Line."Payment Method Code" := 'PERSONAL';
-            Line."Receipt Required" := true;
-            Line.Description := 'Business dinner with client';
-            Line.Status := 'Approved';
-            Line.Insert();
-        end;
+        Line.Init();
+        Line."Line Id" := LineId;
+        Line."Report Id" := GetDemoReportId(1);
+        Line."Line Number" := 30000;
+        Line."Expense Date" := Today() - 29;
+        Line."Category Code" := 'MEALS';
+        Line."Subcategory Code" := 'DINNER';
+        Line."Currency Code" := 'USD';
+        Line.Amount := 85.00;
+        Line."Tax Amount" := 6.80;
+        Line."Reimbursable Amount" := 85.00;
+        Line."Expense Location Code" := 'NYC';
+        Line."Payment Method Code" := 'PERSONAL';
+        Line."Receipt Required" := true;
+        Line.Description := 'Business dinner with client';
+        Line.Status := 'Approved';
+        Line.Insert();
 
-        // Lines for EXP-2025-002
+        // Lines for second report
         LineId += 1;
-        if not Line.Get(LineId) then begin
-            Line.Init();
-            Line."Line Id" := LineId;
-            Line."Report Id" := 'EXP-2025-002';
-            Line."Line Number" := 10000;
-            Line."Expense Date" := Today() - 20;
-            Line."Category Code" := 'TRAINING';
-            Line."Currency Code" := 'USD';
-            Line.Amount := 650.00;
-            Line."Tax Amount" := 0.00;
-            Line."Reimbursable Amount" := 650.00;
-            Line."Expense Location Code" := 'CHI';
-            Line."Payment Method Code" := 'CORP-CARD';
-            Line."Receipt Required" := true;
-            Line.Description := 'Conference registration fee';
-            Line.Status := 'Approved';
-            Line.Insert();
-        end;
+        Line.Init();
+        Line."Line Id" := LineId;
+        Line."Report Id" := GetDemoReportId(2);
+        Line."Line Number" := 10000;
+        Line."Expense Date" := Today() - 20;
+        Line."Category Code" := 'TRAINING';
+        Line."Currency Code" := 'USD';
+        Line.Amount := 650.00;
+        Line."Tax Amount" := 0.00;
+        Line."Reimbursable Amount" := 650.00;
+        Line."Expense Location Code" := 'CHI';
+        Line."Payment Method Code" := 'CORP-CARD';
+        Line."Receipt Required" := true;
+        Line.Description := 'Conference registration fee';
+        Line.Status := 'Approved';
+        Line.Insert();
 
         LineId += 1;
-        if not Line.Get(LineId) then begin
-            Line.Init();
-            Line."Line Id" := LineId;
-            Line."Report Id" := 'EXP-2025-002';
-            Line."Line Number" := 20000;
-            Line."Expense Date" := Today() - 19;
-            Line."Category Code" := 'TAXI';
-            Line."Currency Code" := 'USD';
-            Line.Amount := 35.50;
-            Line."Tax Amount" := 2.84;
-            Line."Reimbursable Amount" := 35.50;
-            Line."Expense Location Code" := 'CHI';
-            Line."Payment Method Code" := 'CORP-CARD';
-            Line."Receipt Required" := true;
-            Line.Description := 'Airport taxi';
-            Line.Status := 'Approved';
-            Line.Insert();
-        end;
+        Line.Init();
+        Line."Line Id" := LineId;
+        Line."Report Id" := GetDemoReportId(2);
+        Line."Line Number" := 20000;
+        Line."Expense Date" := Today() - 19;
+        Line."Category Code" := 'TAXI';
+        Line."Currency Code" := 'USD';
+        Line.Amount := 35.50;
+        Line."Tax Amount" := 2.84;
+        Line."Reimbursable Amount" := 35.50;
+        Line."Expense Location Code" := 'CHI';
+        Line."Payment Method Code" := 'CORP-CARD';
+        Line."Receipt Required" := true;
+        Line.Description := 'Airport taxi';
+        Line.Status := 'Approved';
+        Line.Insert();
 
-        // Lines for EXP-2025-004
+        // Lines for fourth report
         LineId += 1;
-        if not Line.Get(LineId) then begin
-            Line.Init();
-            Line."Line Id" := LineId;
-            Line."Report Id" := 'EXP-2025-004';
-            Line."Line Number" := 10000;
-            Line."Expense Date" := Today() - 5;
-            Line."Category Code" := 'OFFICE';
-            Line."Currency Code" := 'USD';
-            Line.Amount := 125.75;
-            Line."Tax Amount" := 10.06;
-            Line."Reimbursable Amount" := 125.75;
-            Line."Payment Method Code" := 'CASH';
-            Line."Receipt Required" := true;
-            Line.Description := 'Printer paper and office supplies';
-            Line.Status := 'Submitted';
-            Line.Insert();
-        end;
+        Line.Init();
+        Line."Line Id" := LineId;
+        Line."Report Id" := GetDemoReportId(4);
+        Line."Line Number" := 10000;
+        Line."Expense Date" := Today() - 5;
+        Line."Category Code" := 'OFFICE';
+        Line."Currency Code" := 'USD';
+        Line.Amount := 125.75;
+        Line."Tax Amount" := 10.06;
+        Line."Reimbursable Amount" := 125.75;
+        Line."Payment Method Code" := 'CASH';
+        Line."Receipt Required" := true;
+        Line.Description := 'Printer paper and office supplies';
+        Line.Status := 'Submitted';
+        Line.Insert();
     end;
 
     local procedure CreateExpenseReceipts()
@@ -678,7 +742,7 @@ codeunit 50199 "Expense Demo Data Setup"
         if not Comment.Get(CommentId) then begin
             Comment.Init();
             Comment."Comment Id" := CommentId;
-            Comment."Report Id" := 'EXP-2025-001';
+            Comment."Report Id" := GetDemoReportId(1);
             Comment."Line Id" := 1;
             Comment."Comment Text" := 'Flight was delayed, but still made it to the meeting on time.';
             Comment."Comment Date Time" := CurrentDateTime() - 600000;
@@ -690,7 +754,7 @@ codeunit 50199 "Expense Demo Data Setup"
         if not Comment.Get(CommentId) then begin
             Comment.Init();
             Comment."Comment Id" := CommentId;
-            Comment."Report Id" := 'EXP-2025-002';
+            Comment."Report Id" := GetDemoReportId(2);
             Comment."Comment Text" := 'Conference was very valuable for our team development.';
             Comment."Comment Date Time" := CurrentDateTime() - 400000;
             Comment."Created By" := 'EMP002';
@@ -701,7 +765,7 @@ codeunit 50199 "Expense Demo Data Setup"
         if not Comment.Get(CommentId) then begin
             Comment.Init();
             Comment."Comment Id" := CommentId;
-            Comment."Report Id" := 'EXP-2025-004';
+            Comment."Report Id" := GetDemoReportId(4);
             Comment."Comment Text" := 'Urgently needed supplies for quarterly reports.';
             Comment."Comment Date Time" := CurrentDateTime() - 100000;
             Comment."Created By" := 'EMP004';
@@ -816,5 +880,27 @@ codeunit 50199 "Expense Demo Data Setup"
             PerDiem."Itemized Amount" := 0.00;
             PerDiem.Insert();
         end;
+    end;
+
+    local procedure ClearExistingData()
+    var
+        ExpenseReport: Record "Expense Reports";
+        ExpenseReportLine: Record "Expense Report Lines";
+        ExpenseReceipt: Record "Expense Receipts";
+        ExpenseComment: Record "Expense Comments";
+        ExpenseItemization: Record "Expense Itemizations";
+        ExpenseItemizationLine: Record "Expense Itemization Lines";
+        ExpenseParticipant: Record "Expense Participants";
+        PerDiemExpense: Record "Per Diem Expenses";
+    begin
+        // Clear all demo data in reverse dependency order
+        PerDiemExpense.DeleteAll();
+        ExpenseParticipant.DeleteAll();
+        ExpenseItemizationLine.DeleteAll();
+        ExpenseItemization.DeleteAll();
+        ExpenseComment.DeleteAll();
+        ExpenseReceipt.DeleteAll();
+        ExpenseReportLine.DeleteAll();
+        ExpenseReport.DeleteAll();
     end;
 }

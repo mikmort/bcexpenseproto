@@ -7,6 +7,19 @@ table 50102 "Expense Reports"
         {
             Caption = 'Report ID';
             DataClassification = ToBeClassified;
+
+            trigger OnValidate()
+            var
+                ExpenseSetup: Record "Expense Management Setup";
+                NoSeries: Codeunit "No. Series";
+            begin
+                if "Report Id" <> xRec."Report Id" then begin
+                    if ExpenseSetup.Get(1) then begin
+                        NoSeries.TestManual(ExpenseSetup."Expense Report No. Sequence");
+                        "No. Series" := '';
+                    end;
+                end;
+            end;
         }
         field(2; "Employee Id"; Code[20])
         {
@@ -82,6 +95,13 @@ table 50102 "Expense Reports"
             Caption = 'Modified Date Time';
             DataClassification = ToBeClassified;
         }
+        field(16; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            DataClassification = ToBeClassified;
+            TableRelation = "No. Series".Code;
+            Editable = false;
+        }
     }
     keys
     {
@@ -90,4 +110,47 @@ table 50102 "Expense Reports"
             Clustered = true;
         }
     }
+
+    trigger OnInsert()
+    var
+        ExpenseSetup: Record "Expense Management Setup";
+        NoSeries: Codeunit "No. Series";
+    begin
+        if "Report Id" = '' then begin
+            if not ExpenseSetup.Get(1) then begin
+                // Create default setup if it doesn't exist
+                ExpenseSetup.Init();
+                ExpenseSetup."Setup Id" := 1;
+                ExpenseSetup."Expense Report No. Sequence" := 'EXP-REPORT';
+                ExpenseSetup."Posted Expense Report No Seq." := 'POSTED-EXP';
+                ExpenseSetup."Enable Expense Agent" := true;
+                ExpenseSetup.Insert();
+            end;
+            ExpenseSetup.TestField("Expense Report No. Sequence");
+            "Report Id" := NoSeries.GetNextNo(ExpenseSetup."Expense Report No. Sequence", "Report Date", true);
+            "No. Series" := ExpenseSetup."Expense Report No. Sequence";
+        end;
+    end;
+
+    trigger OnModify()
+    begin
+        "Modified Date Time" := CurrentDateTime();
+    end;
+
+    procedure AssistEdit(OldExpenseReport: Record "Expense Reports"): Boolean
+    var
+        ExpenseReport: Record "Expense Reports";
+        ExpenseSetup: Record "Expense Management Setup";
+        NoSeries: Codeunit "No. Series";
+    begin
+        ExpenseReport := Rec;
+        if not ExpenseSetup.Get(1) then
+            exit(false);
+        ExpenseSetup.TestField("Expense Report No. Sequence");
+        if NoSeries.LookupRelatedNoSeries(ExpenseSetup."Expense Report No. Sequence", OldExpenseReport."No. Series", ExpenseReport."No. Series") then begin
+            ExpenseReport."Report Id" := NoSeries.GetNextNo(ExpenseReport."No. Series", ExpenseReport."Report Date", true);
+            Rec := ExpenseReport;
+            exit(true);
+        end;
+    end;
 }

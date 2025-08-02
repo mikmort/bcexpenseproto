@@ -11,13 +11,68 @@ page 50168 "Expense Management Setup"
         {
             group(General)
             {
-                field("Setup Id"; Rec."Setup Id") { ApplicationArea = All; }
-                field("Expense Report No. Sequence"; Rec."Expense Report No. Sequence") { ApplicationArea = All; }
-                field("Posted Expense Report No Seq."; Rec."Posted Expense Report No Seq.") { ApplicationArea = All; }
-                field("Enable Expense Agent"; Rec."Enable Expense Agent") { ApplicationArea = All; }
+                Caption = 'General';
+
+                field("Setup Id"; Rec."Setup Id")
+                {
+                    ApplicationArea = All;
+                    Visible = false;
+                }
+            }
+
+            group(NumberSeries)
+            {
+                Caption = 'Number Series';
+
+                field("Expense Report No. Sequence"; Rec."Expense Report No. Sequence")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the number series for expense reports.';
+
+                    trigger OnAssistEdit()
+                    var
+                        NoSeries: Page "No. Series";
+                    begin
+                        NoSeries.LookupMode(true);
+                        if NoSeries.RunModal() = Action::LookupOK then begin
+                            NoSeries.GetRecord(NoSeriesRec);
+                            Rec."Expense Report No. Sequence" := NoSeriesRec.Code;
+                        end;
+                    end;
+                }
+                field("Posted Expense Report No Seq."; Rec."Posted Expense Report No Seq.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the number series for posted expense reports.';
+
+                    trigger OnAssistEdit()
+                    var
+                        NoSeries: Page "No. Series";
+                    begin
+                        NoSeries.LookupMode(true);
+                        if NoSeries.RunModal() = Action::LookupOK then begin
+                            NoSeries.GetRecord(NoSeriesRec);
+                            Rec."Posted Expense Report No Seq." := NoSeriesRec.Code;
+                        end;
+                    end;
+                }
+            }
+
+            group(Features)
+            {
+                Caption = 'Features';
+
+                field("Enable Expense Agent"; Rec."Enable Expense Agent")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Enables the expense agent for automated processing.';
+                }
             }
         }
     }
+
+    var
+        NoSeriesRec: Record "No. Series";
 }
 
 

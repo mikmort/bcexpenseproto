@@ -8,15 +8,17 @@ table 50100 "Expense Management Setup"
             Caption = 'Setup ID';
             DataClassification = ToBeClassified;
         }
-        field(2; "Expense Report No. Sequence"; Code[30])
+        field(2; "Expense Report No. Sequence"; Code[20])
         {
-            Caption = 'Expense Report No. Sequence';
+            Caption = 'Expense Report No. Series';
             DataClassification = ToBeClassified;
+            TableRelation = "No. Series".Code;
         }
-        field(3; "Posted Expense Report No Seq."; Code[30])
+        field(3; "Posted Expense Report No Seq."; Code[20])
         {
-            Caption = 'Posted Expense Report No. Sequence';
+            Caption = 'Posted Expense Report No. Series';
             DataClassification = ToBeClassified;
+            TableRelation = "No. Series".Code;
         }
         field(4; "Enable Expense Agent"; Boolean)
         {
