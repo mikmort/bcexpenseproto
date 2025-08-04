@@ -9,6 +9,7 @@ page 50171 "My Expense Reports List"
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
+    PromotedActionCategories = 'New,Process,Report,Category4,Filter';
 
     layout
     {
@@ -136,7 +137,7 @@ page 50171 "My Expense Reports List"
                     Caption = 'Show All';
                     Image = ClearFilter;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show all my expense reports regardless of status';
 
                     trigger OnAction()
@@ -152,7 +153,7 @@ page 50171 "My Expense Reports List"
                     Caption = 'Draft Reports';
                     Image = Document;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show only draft expense reports';
 
                     trigger OnAction()
@@ -168,7 +169,7 @@ page 50171 "My Expense Reports List"
                     Caption = 'Submitted Reports';
                     Image = SendTo;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show only submitted expense reports pending approval';
 
                     trigger OnAction()
@@ -184,7 +185,7 @@ page 50171 "My Expense Reports List"
                     Caption = 'Approved Reports';
                     Image = Approval;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show only approved expense reports';
 
                     trigger OnAction()
