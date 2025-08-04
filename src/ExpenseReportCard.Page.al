@@ -29,6 +29,19 @@ page 50153 "Expense Report Card"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the employee who created this expense report.';
+                    
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Employee: Record Employee;
+                        EmployeeList: Page "Employee List";
+                    begin
+                        EmployeeList.SetTableView(Employee);
+                        EmployeeList.LookupMode(true);
+                        if EmployeeList.RunModal() = Action::LookupOK then begin
+                            EmployeeList.GetRecord(Employee);
+                            Rec."Employee Id" := Employee."No.";
+                        end;
+                    end;
                 }
                 field(Purpose; Rec.Purpose)
                 {
@@ -176,9 +189,6 @@ page 50153 "Expense Report Card"
                     Message('Printing expense report.');
                 end;
             }
-        }
-        area(Navigation)
-        {
             action(ViewExpenseLines)
             {
                 ApplicationArea = All;

@@ -31,6 +31,11 @@ page 50189 "Expense Report Lines Part"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the expense subcategory.';
                 }
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the currency code for the expense.';
+                }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
@@ -40,16 +45,6 @@ page 50189 "Expense Report Lines Part"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the expense amount.';
-                }
-                field("Tax Amount"; Rec."Tax Amount")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the tax amount.';
-                }
-                field("Reimbursable Amount"; Rec."Reimbursable Amount")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the reimbursable amount.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {

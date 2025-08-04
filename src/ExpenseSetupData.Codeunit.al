@@ -142,7 +142,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'RENTAL-CAR';
             Category.Description := 'Car Rental';
             Category."Expense Group Code" := 'TRAVEL';
-            Category."Posting Group Code" := 'TRAVEL';
+            Category."Posting Group Code" := 'VEHICLE';
             Category.Refundable := true;
             Category.Active := true;
             Category.Insert();
@@ -176,7 +176,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'MEALS';
             Category.Description := 'Business Meals';
             Category."Expense Group Code" := 'MEALS';
-            Category."Posting Group Code" := 'ENTERTAINMENT';
+            Category."Posting Group Code" := 'ENTERTAIN_DED';
             Category.Refundable := true;
             Category.Active := true;
             Category.Insert();
@@ -187,7 +187,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'ENTERTAINMENT';
             Category.Description := 'Client Entertainment';
             Category."Expense Group Code" := 'MEALS';
-            Category."Posting Group Code" := 'ENTERTAINMENT';
+            Category."Posting Group Code" := 'ENTERTAIN_DED';
             Category.Refundable := true;
             Category.Active := true;
             Category.Insert();
@@ -199,7 +199,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'OFFICE-SUPPLY';
             Category.Description := 'Office Supplies';
             Category."Expense Group Code" := 'OFFICE';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'OFFICE_SUP';
             Category.Refundable := false;
             Category.Active := true;
             Category.Insert();
@@ -210,7 +210,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'SOFTWARE';
             Category.Description := 'Software and Subscriptions';
             Category."Expense Group Code" := 'OFFICE';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'SOFTWARE_SUB';
             Category.Refundable := false;
             Category.Active := true;
             Category.Insert();
@@ -221,7 +221,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'POSTAGE';
             Category.Description := 'Postage and Shipping';
             Category."Expense Group Code" := 'OFFICE';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'FREIGHT';
             Category.Refundable := false;
             Category.Active := true;
             Category.Insert();
@@ -233,7 +233,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'TRAINING';
             Category.Description := 'Training and Conferences';
             Category."Expense Group Code" := 'TRAINING';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'PRO_SERV';
             Category.Refundable := true;
             Category.Active := true;
             Category.Insert();
@@ -244,7 +244,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'BOOKS';
             Category.Description := 'Books and Publications';
             Category."Expense Group Code" := 'TRAINING';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'LICENSES_ROY';
             Category.Refundable := false;
             Category.Active := true;
             Category.Insert();
@@ -255,7 +255,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'MEMBERSHIP';
             Category.Description := 'Professional Memberships';
             Category."Expense Group Code" := 'TRAINING';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'PRO_SERV';
             Category.Refundable := false;
             Category.Active := true;
             Category.Insert();
@@ -267,7 +267,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'PHONE';
             Category.Description := 'Phone and Mobile';
             Category."Expense Group Code" := 'TELECOM';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'TELECOM_IT';
             Category.Refundable := false;
             Category.Active := true;
             Category.Insert();
@@ -278,7 +278,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'INTERNET';
             Category.Description := 'Internet and Data';
             Category."Expense Group Code" := 'TELECOM';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'TELECOM_IT';
             Category.Refundable := false;
             Category.Active := true;
             Category.Insert();
@@ -290,7 +290,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'MILEAGE';
             Category.Description := 'Vehicle Mileage';
             Category."Expense Group Code" := 'VEHICLE';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'VEHICLE';
             Category.Refundable := true;
             Category.Active := true;
             Category.Insert();
@@ -301,7 +301,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'GAS';
             Category.Description := 'Fuel and Gas';
             Category."Expense Group Code" := 'VEHICLE';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'VEHICLE';
             Category.Refundable := true;
             Category.Active := true;
             Category.Insert();
@@ -312,7 +312,7 @@ codeunit 50197 "Expense Setup Data"
             Category."Category Code" := 'TOLLS';
             Category.Description := 'Tolls and Bridge Fees';
             Category."Expense Group Code" := 'VEHICLE';
-            Category."Posting Group Code" := 'STANDARD';
+            Category."Posting Group Code" := 'VEHICLE';
             Category.Refundable := true;
             Category.Active := true;
             Category.Insert();
