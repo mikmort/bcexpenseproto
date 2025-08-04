@@ -18,7 +18,7 @@ table 50118 "Posted Expense Report Lines"
         {
             Caption = 'Employee ID';
             DataClassification = ToBeClassified;
-            TableRelation = Employees."Employee Id";
+            TableRelation = Employee."No.";
         }
         field(4; "Category Code"; Code[20])
         {

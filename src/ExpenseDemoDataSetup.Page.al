@@ -194,7 +194,7 @@ page 50194 "Expense Demo Data Setup"
 
     local procedure UpdateCounts()
     var
-        Employee: Record Employees;
+        Employee: Record Employee;
         Category: Record "Expense Categories";
         Report: Record "Expense Reports";
         Line: Record "Expense Report Lines";
@@ -209,7 +209,7 @@ page 50194 "Expense Demo Data Setup"
 
     local procedure ClearAllDemoData()
     var
-        Employee: Record Employees;
+        Employee: Record Employee;
         ExpenseGroup: Record "Expense Groups";
         PostingGroup: Record "Expense Posting Groups";
         Category: Record "Expense Categories";

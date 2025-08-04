@@ -53,61 +53,51 @@ codeunit 50198 "Expense Demo Data"
 
     local procedure CreateDemoEmployees()
     var
-        Employee: Record Employees;
+        Employee: Record Employee;
     begin
-        // Create sample employees for demonstration
+        // Create sample employees for demonstration using built-in Employee table
         if not Employee.Get('EMP001') then begin
             Employee.Init();
-            Employee."Employee Id" := 'EMP001';
+            Employee."No." := 'EMP001';
             Employee."First Name" := 'John';
             Employee."Last Name" := 'Smith';
-            Employee.Email := 'john.smith@company.com';
-            Employee."Default Currency" := 'USD';
-            Employee."Legal Entity" := 'MAIN';
+            Employee."E-Mail" := 'john.smith@company.com';
             Employee.Insert();
         end;
 
         if not Employee.Get('EMP002') then begin
             Employee.Init();
-            Employee."Employee Id" := 'EMP002';
+            Employee."No." := 'EMP002';
             Employee."First Name" := 'Sarah';
             Employee."Last Name" := 'Johnson';
-            Employee.Email := 'sarah.johnson@company.com';
-            Employee."Default Currency" := 'USD';
-            Employee."Legal Entity" := 'MAIN';
+            Employee."E-Mail" := 'sarah.johnson@company.com';
             Employee.Insert();
         end;
 
         if not Employee.Get('EMP003') then begin
             Employee.Init();
-            Employee."Employee Id" := 'EMP003';
+            Employee."No." := 'EMP003';
             Employee."First Name" := 'Michael';
             Employee."Last Name" := 'Brown';
-            Employee.Email := 'michael.brown@company.com';
-            Employee."Default Currency" := 'GBP';
-            Employee."Legal Entity" := 'UK-SUB';
+            Employee."E-Mail" := 'michael.brown@company.com';
             Employee.Insert();
         end;
 
         if not Employee.Get('EMP004') then begin
             Employee.Init();
-            Employee."Employee Id" := 'EMP004';
+            Employee."No." := 'EMP004';
             Employee."First Name" := 'Emily';
             Employee."Last Name" := 'Davis';
-            Employee.Email := 'emily.davis@company.com';
-            Employee."Default Currency" := 'USD';
-            Employee."Legal Entity" := 'MAIN';
+            Employee."E-Mail" := 'emily.davis@company.com';
             Employee.Insert();
         end;
 
         if not Employee.Get('EMP005') then begin
             Employee.Init();
-            Employee."Employee Id" := 'EMP005';
+            Employee."No." := 'EMP005';
             Employee."First Name" := 'David';
             Employee."Last Name" := 'Wilson';
-            Employee.Email := 'david.wilson@company.com';
-            Employee."Default Currency" := 'EUR';
-            Employee."Legal Entity" := 'EU-SUB';
+            Employee."E-Mail" := 'david.wilson@company.com';
             Employee.Insert();
         end;
     end;

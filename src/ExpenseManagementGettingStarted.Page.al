@@ -148,7 +148,7 @@ page 50195 "Expense Mgmt Getting Started"
 
                     trigger OnDrillDown()
                     begin
-                        Page.Run(Page::"Employees List");
+                        Page.Run(Page::"Employee List");
                     end;
                 }
             }

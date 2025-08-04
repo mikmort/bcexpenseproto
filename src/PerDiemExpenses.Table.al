@@ -18,7 +18,7 @@ table 50110 "Per Diem Expenses"
         {
             Caption = 'Employee ID';
             DataClassification = ToBeClassified;
-            TableRelation = Employees."Employee Id";
+            TableRelation = Employee."No.";
         }
         field(4; "Expense Date"; Date)
         {

@@ -225,7 +225,7 @@ page 50171 "My Expense Reports List"
     local procedure SetMyExpenseReportsFilter()
     var
         CurrentUserId: Text[50];
-        EmployeeRec: Record Employees;
+        EmployeeRec: Record Employee;
         FilterString: Text[250];
     begin
         CurrentUserId := UserId();
@@ -235,17 +235,17 @@ page 50171 "My Expense Reports List"
 
         // Try to find employee record for current user
         Clear(EmployeeRec);
-        EmployeeRec.SetRange("Employee Id", CurrentUserId);
+        EmployeeRec.SetRange("No.", CurrentUserId);
         if not EmployeeRec.FindFirst() then begin
             // Try to find by email if direct ID match fails
-            EmployeeRec.SetRange("Employee Id");
-            EmployeeRec.SetRange(Email, CurrentUserId);
+            EmployeeRec.SetRange("No.");
+            EmployeeRec.SetRange("E-Mail", CurrentUserId);
             if EmployeeRec.FindFirst() then
-                FilterString := FilterString + '|' + EmployeeRec."Employee Id";
+                FilterString := FilterString + '|' + EmployeeRec."No.";
         end else begin
             // Add employee ID to filter if different from user ID
-            if EmployeeRec."Employee Id" <> CurrentUserId then
-                FilterString := FilterString + '|' + EmployeeRec."Employee Id";
+            if EmployeeRec."No." <> CurrentUserId then
+                FilterString := FilterString + '|' + EmployeeRec."No.";
         end;
 
         // Set security filter to show only relevant reports
@@ -253,9 +253,9 @@ page 50171 "My Expense Reports List"
 
         // Create compound filter: Reports created by user OR assigned to user's employee record
         Rec.SetFilter("Created By", '%1', CurrentUserId);
-        if EmployeeRec."Employee Id" <> '' then begin
+        if EmployeeRec."No." <> '' then begin
             // Add OR condition for employee assignment
-            Rec.SetFilter("Employee Id", '%1', EmployeeRec."Employee Id");
+            Rec.SetFilter("Employee Id", '%1', EmployeeRec."No.");
         end;
 
         Rec.FilterGroup(0);
