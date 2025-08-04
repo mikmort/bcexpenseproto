@@ -1,4 +1,4 @@
-page 50199 "Expense Management Setup Wizard"
+page 50193 "Expense Mgmt Setup Wizard"
 {
     PageType = NavigatePage;
     ApplicationArea = All;
@@ -90,7 +90,7 @@ page 50199 "Expense Management Setup Wizard"
                     Caption = 'Quick Setup';
                     InstructionalText = 'Click "Create Default Number Series" to automatically create standard number series for expense reports.';
 
-                    field(CreateDefaultNumberSeries; '')
+                    field(CreateDefaultNumberSeriesField; 'Create Default Number Series')
                     {
                         ApplicationArea = All;
                         ShowCaption = false;
@@ -168,7 +168,7 @@ page 50199 "Expense Management Setup Wizard"
                     Caption = 'Demo Data (Optional)';
                     InstructionalText = 'You can create demo data to help you learn and test the system. This includes sample employees, expense reports, and transactions.';
 
-                    field(CreateDemoData; CreateDemoDataText)
+                    field(CreateDemoDataField; CreateDemoDataText)
                     {
                         ApplicationArea = All;
                         Caption = 'Create Demo Data';
@@ -302,6 +302,12 @@ page 50199 "Expense Management Setup Wizard"
         Step := Step::Start;
         EnableControls();
         GetSetupRecord();
+        
+        // Initialize text for action fields
+        CreateDemoDataText := 'Click here to create demo data';
+        CreateMasterDataText := 'Click here to create master data';
+        MasterDataStatusText := '';
+        DemoDataStatusText := '';
     end;
 
     var
@@ -363,7 +369,7 @@ page 50199 "Expense Management Setup Wizard"
         BackActionEnabled := true;
         NextActionEnabled := true;
         FinishActionEnabled := false;
-        
+
         CreateMasterDataText := 'Click here to create default master data';
         MasterDataStatusText := 'Not created';
     end;
@@ -374,7 +380,7 @@ page 50199 "Expense Management Setup Wizard"
         BackActionEnabled := true;
         NextActionEnabled := true;
         FinishActionEnabled := false;
-        
+
         CreateDemoDataText := 'Click here to create demo data';
         DemoDataStatusText := 'Not created';
     end;
@@ -432,7 +438,7 @@ page 50199 "Expense Management Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientType())) then
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(CurrentClientType())) then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") then
                 TopBannerVisible := MediaResourcesStandard."Media Reference".HasValue();
     end;
@@ -481,7 +487,7 @@ page 50199 "Expense Management Setup Wizard"
         // Update setup record
         Rec."Expense Report No. Sequence" := 'EXPR';
         Rec."Posted Expense Report No Seq." := 'P-EXPR';
-        
+
         Message('Default number series created successfully!');
     end;
 

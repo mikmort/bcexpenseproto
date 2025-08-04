@@ -1,4 +1,4 @@
-page 50200 "Expense Setup Checklist"
+page 50196 "Expense Setup Checklist"
 {
     PageType = Card;
     ApplicationArea = All;
@@ -13,7 +13,7 @@ page 50200 "Expense Setup Checklist"
             group(General)
             {
                 Caption = 'Setup Overview';
-                
+
                 field(OverallStatus; OverallStatusText)
                 {
                     ApplicationArea = All;
@@ -153,7 +153,7 @@ page 50200 "Expense Setup Checklist"
 
                     trigger OnDrillDown()
                     begin
-                        Page.RunModal(Page::"Expense Management Setup Wizard");
+                        Page.RunModal(Page::"Expense Mgmt Setup Wizard");
                         UpdateStatus();
                     end;
                 }
@@ -237,7 +237,7 @@ page 50200 "Expense Setup Checklist"
         // Check Number Series
         NumberSeriesComplete := false;
         if ExpenseSetup.Get(1) then begin
-            if (ExpenseSetup."Expense Report No. Sequence" <> '') and 
+            if (ExpenseSetup."Expense Report No. Sequence" <> '') and
                (ExpenseSetup."Posted Expense Report No Seq." <> '') then begin
                 NumberSeriesStatusText := 'Configured ✓';
                 NumberSeriesComplete := true;

@@ -1,4 +1,4 @@
-page 50201 "Expense Management Getting Started"
+page 50195 "Expense Mgmt Getting Started"
 {
     PageType = Card;
     ApplicationArea = All;
@@ -13,7 +13,7 @@ page 50201 "Expense Management Getting Started"
             group(Welcome)
             {
                 Caption = 'Welcome to Expense Management';
-                
+
                 field(WelcomeText; 'Welcome to the Business Central Expense Management system! This guide will help you get started quickly.')
                 {
                     ApplicationArea = All;
@@ -36,7 +36,7 @@ page 50201 "Expense Management Getting Started"
 
                     trigger OnDrillDown()
                     begin
-                        Page.RunModal(Page::"Expense Management Setup Wizard");
+                        Page.RunModal(Page::"Expense Mgmt Setup Wizard");
                     end;
                 }
 
@@ -166,7 +166,7 @@ page 50201 "Expense Management Getting Started"
 
                     trigger OnDrillDown()
                     begin
-                        Page.Run(Page::"Expense Report Card", true);
+                        Page.Run(Page::"Expense Report Card");
                     end;
                 }
 
@@ -297,7 +297,7 @@ page 50201 "Expense Management Getting Started"
 
                 trigger OnAction()
                 begin
-                    Page.RunModal(Page::"Expense Management Setup Wizard");
+                    Page.RunModal(Page::"Expense Mgmt Setup Wizard");
                 end;
             }
 

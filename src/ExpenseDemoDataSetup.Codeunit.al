@@ -1,4 +1,4 @@
-codeunit 50199 "Expense Demo Data Setup"
+codeunit 50192 "Expense Demo Data Setup"
 {
     trigger OnRun()
     begin
