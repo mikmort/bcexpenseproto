@@ -113,8 +113,8 @@ page 50193 "Expense Mgmt Setup Wizard"
 
                 group("Para2_5.1")
                 {
-                    Caption = 'Posting Groups Setup';
-                    InstructionalText = 'Configure posting groups that define how expense transactions are posted to the general ledger. Add, edit, or remove posting groups as needed. G/L Account lookups will validate account existence automatically.';
+                    Caption = 'Posting Groups Review';
+                    InstructionalText = 'Review and customize the posting groups that were created with your master data. These define how expense transactions are posted to the general ledger. You can add, edit, or remove posting groups as needed.';
 
                     part(PostingGroupsPart; "Expense Posting Groups Part")
                     {
@@ -125,9 +125,9 @@ page 50193 "Expense Mgmt Setup Wizard"
 
                 group("Para2_5.2")
                 {
-                    Caption = 'Quick Setup';
+                    Caption = 'Additional Setup';
 
-                    field(CreateDefaultPostingGroupsField; 'Create Standard Posting Groups')
+                    field(CreateDefaultPostingGroupsField; 'Create Additional Posting Groups')
                     {
                         ApplicationArea = All;
                         ShowCaption = false;
@@ -351,7 +351,7 @@ page 50193 "Expense Mgmt Setup Wizard"
         MediaRepositoryStandard: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         NoSeriesRec: Record "No. Series";
-        Step: Option Start,NumberSeries,PostingGroups,MasterData,Features,Finish;
+        Step: Option Start,NumberSeries,MasterData,PostingGroups,Features,Finish;
         TopBannerVisible: Boolean;
         Step1Visible: Boolean;
         Step2Visible: Boolean;
@@ -376,10 +376,10 @@ page 50193 "Expense Mgmt Setup Wizard"
                 ShowStep1();
             Step::NumberSeries:
                 ShowStep2();
-            Step::PostingGroups:
-                ShowStep2_5();
             Step::MasterData:
                 ShowStep3();
+            Step::PostingGroups:
+                ShowStep2_5();
             Step::Features:
                 ShowStep4();
             Step::Finish:
@@ -418,7 +418,7 @@ page 50193 "Expense Mgmt Setup Wizard"
         NextActionEnabled := true;
         FinishActionEnabled := false;
 
-        CreateMasterDataText := 'Click here to create default master data';
+        CreateMasterDataText := 'Click here to create default master data (including posting groups)';
         MasterDataStatusText := 'Not created';
     end;
 
@@ -650,10 +650,20 @@ page 50193 "Expense Mgmt Setup Wizard"
     var
         SetupData: Codeunit "Expense Setup Data";
         IntegerRec: Record Integer;
+        PostingGroup: Record "Expense Posting Groups";
+        PostingGroupCount: Integer;
     begin
         SetupData.Run(IntegerRec);
-        MasterDataStatusText := 'Created successfully';
+        
+        // Count created posting groups
+        PostingGroup.Reset();
+        PostingGroupCount := PostingGroup.Count();
+        
+        MasterDataStatusText := StrSubstNo('Created successfully (%1 posting groups)', PostingGroupCount);
         CreateMasterDataText := 'Master data created';
+        
+        // Update the posting groups part on the posting groups step
+        CurrPage.Update();
     end;
 
     local procedure CreateDemoData()

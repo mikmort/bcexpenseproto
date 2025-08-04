@@ -12,7 +12,7 @@ codeunit 50197 "Expense Setup Data"
     local procedure CreateSetupData()
     begin
         CreateExpenseGroups();
-        // CreateExpensePostingGroups(); // Moved to Setup Wizard
+        CreateExpensePostingGroups(); // Re-enabled for master data creation
         CreateExpenseCategories();
         CreateExpenseSubcategories();
         CreateExpenseLocations();
@@ -75,37 +75,50 @@ codeunit 50197 "Expense Setup Data"
     local procedure CreateExpensePostingGroups()
     var
         PostingGroup: Record "Expense Posting Groups";
+        GLAccount: Record "G/L Account";
+        CreatedCount: Integer;
     begin
-        // Standard posting groups for most companies
-        if not PostingGroup.Get('STANDARD') then begin
-            PostingGroup.Init();
-            PostingGroup."Posting Group Code" := 'STANDARD';
-            PostingGroup."Description" := 'Standard Expense Posting Group';
-            PostingGroup."Refundable Debit Account" := '6000';
-            PostingGroup."Non Refundable Debit Account" := '6100';
-            PostingGroup."Prepayment Credit Account" := '2400';
-            PostingGroup.Insert();
-        end;
+        CreatedCount := 0;
 
-        if not PostingGroup.Get('TRAVEL') then begin
-            PostingGroup.Init();
-            PostingGroup."Posting Group Code" := 'TRAVEL';
-            PostingGroup."Description" := 'Travel and Transportation Expenses';
-            PostingGroup."Refundable Debit Account" := '6200';
-            PostingGroup."Non Refundable Debit Account" := '6210';
-            PostingGroup."Prepayment Credit Account" := '2410';
-            PostingGroup.Insert();
-        end;
+        // Comprehensive posting groups for US businesses
+        if CreatePostingGroupIfAccountsExist('TRAVEL', 'Air/Rail/Bus tickets, lodging, taxi, mileage, parking, per diem', '15910', '62310', '25200') then
+            CreatedCount += 1;
 
-        if not PostingGroup.Get('ENTERTAINMENT') then begin
-            PostingGroup.Init();
-            PostingGroup."Posting Group Code" := 'ENTERTAINMENT';
-            PostingGroup."Description" := 'Entertainment and Client Meals';
-            PostingGroup."Refundable Debit Account" := '6300';
-            PostingGroup."Non Refundable Debit Account" := '6310';
-            PostingGroup."Prepayment Credit Account" := '2420';
-            PostingGroup.Insert();
-        end;
+        if CreatePostingGroupIfAccountsExist('VEHICLE', 'Fuel, tolls, car service, leasing fees charged back to employee', '15910', '62110', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('ENTERTAIN_DED', 'Client meals & entertainment – deductible portion', '15910', '63420', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('ENTERTAIN_NDED', 'Client meals & entertainment – non-deductible portion', '15910', '63430', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('FREIGHT', 'Small-parcel or courier fees paid out-of-pocket', '15910', '62210', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('OFFICE_SUP', 'Stationery, printer ink, small peripherals, < DKK 2 500 tech', '15910', '64100', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('TELECOM_IT', 'Mobile data, hotspot day-passes, SIM cards', '15910', '64200', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('SOFTWARE_SUB', 'SaaS subscriptions, short-term licences bought on a card', '15910', '64600', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('MARKETING', 'Ads, event sponsorships, promo materials picked up locally', '15910', '63100', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('PRO_SERV', 'One-off consulting, design, legal, accounting fees', '15910', '68110', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('LICENSES_ROY', 'Digital-content licences, royalties paid ad-hoc', '15910', '68210', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('INSURANCE_MISC', 'Travel insurance, baggage insurance, ad-hoc risk fees', '15910', '65100', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('MISC_OTHER', 'Miscellaneous expenses that don''t fit other categories (review monthly)', '15910', '67400', '25200') then
+            CreatedCount += 1;
     end;
 
     local procedure CreateExpenseCategories()
@@ -727,5 +740,45 @@ codeunit 50197 "Expense Setup Data"
             NoSeriesLine.Open := true;
             NoSeriesLine.Insert();
         end;
+    end;
+
+    local procedure CreatePostingGroupIfAccountsExist(Code: Code[20]; Description: Text[100]; RefundableAccount: Code[20]; NonRefundableAccount: Code[20]; PrepaymentAccount: Code[20]): Boolean
+    var
+        PostingGroup: Record "Expense Posting Groups";
+        GLAccount: Record "G/L Account";
+        RefundableAccountNo: Code[20];
+        NonRefundableAccountNo: Code[20];
+        PrepaymentAccountNo: Code[20];
+    begin
+        // Skip if posting group already exists
+        if PostingGroup.Get(Code) then
+            exit(false);
+
+        // Validate accounts exist and are posting accounts, set to blank if not
+        if GLAccount.Get(RefundableAccount) and (GLAccount."Account Type" = GLAccount."Account Type"::Posting) and not GLAccount.Blocked then
+            RefundableAccountNo := RefundableAccount
+        else
+            RefundableAccountNo := '';
+
+        if GLAccount.Get(NonRefundableAccount) and (GLAccount."Account Type" = GLAccount."Account Type"::Posting) and not GLAccount.Blocked then
+            NonRefundableAccountNo := NonRefundableAccount
+        else
+            NonRefundableAccountNo := '';
+
+        if GLAccount.Get(PrepaymentAccount) and (GLAccount."Account Type" = GLAccount."Account Type"::Posting) and not GLAccount.Blocked then
+            PrepaymentAccountNo := PrepaymentAccount
+        else
+            PrepaymentAccountNo := '';
+
+        // Create the posting group
+        PostingGroup.Init();
+        PostingGroup."Posting Group Code" := Code;
+        PostingGroup."Description" := Description;
+        PostingGroup."Refundable Debit Account" := RefundableAccountNo;
+        PostingGroup."Non Refundable Debit Account" := NonRefundableAccountNo;
+        PostingGroup."Prepayment Credit Account" := PrepaymentAccountNo;
+        PostingGroup.Insert();
+
+        exit(true);
     end;
 }
