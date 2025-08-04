@@ -12,7 +12,7 @@ codeunit 50197 "Expense Setup Data"
     local procedure CreateSetupData()
     begin
         CreateExpenseGroups();
-        CreateExpensePostingGroups();
+        // CreateExpensePostingGroups(); // Moved to Setup Wizard
         CreateExpenseCategories();
         CreateExpenseSubcategories();
         CreateExpenseLocations();

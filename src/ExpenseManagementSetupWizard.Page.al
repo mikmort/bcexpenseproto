@@ -106,6 +106,70 @@ page 50193 "Expense Mgmt Setup Wizard"
                 }
             }
 
+            group(Step2_5)
+            {
+                Visible = Step2_5Visible;
+                ShowCaption = false;
+
+                group("Para2_5.1")
+                {
+                    Caption = 'Posting Groups Setup';
+                    InstructionalText = 'Configure posting groups that define how expense transactions are posted to the general ledger.';
+
+                    field(PostingGroupCode; PostingGroupCodeText)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Posting Group Code';
+                        ToolTip = 'Specifies the code for the posting group.';
+
+                        trigger OnValidate()
+                        begin
+                            // Validation logic if needed
+                        end;
+                    }
+
+                    field(RefundableDebitAccount; RefundableDebitAccountText)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Refundable Debit Account';
+                        ToolTip = 'Specifies the G/L account for refundable expenses.';
+                    }
+
+                    field(NonRefundableDebitAccount; NonRefundableDebitAccountText)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Non-Refundable Debit Account';
+                        ToolTip = 'Specifies the G/L account for non-refundable expenses.';
+                    }
+
+                    field(PrepaymentCreditAccount; PrepaymentCreditAccountText)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Prepayment Credit Account';
+                        ToolTip = 'Specifies the G/L account for prepayments.';
+                    }
+                }
+
+                group("Para2_5.2")
+                {
+                    Caption = 'Quick Setup';
+
+                    field(CreateDefaultPostingGroupField; 'Create Standard Posting Group')
+                    {
+                        ApplicationArea = All;
+                        ShowCaption = false;
+                        Editable = false;
+                        Style = StandardAccent;
+                        StyleExpr = true;
+
+                        trigger OnDrillDown()
+                        begin
+                            CreateDefaultPostingGroup();
+                        end;
+                    }
+                }
+            }
+
             group(Step3)
             {
                 Visible = Step3Visible;
@@ -308,16 +372,23 @@ page 50193 "Expense Mgmt Setup Wizard"
         CreateMasterDataText := 'Click here to create master data';
         MasterDataStatusText := '';
         DemoDataStatusText := '';
+        
+        // Initialize posting group defaults
+        PostingGroupCodeText := 'STANDARD';
+        RefundableDebitAccountText := '6000';
+        NonRefundableDebitAccountText := '6100';
+        PrepaymentCreditAccountText := '2400';
     end;
 
     var
         MediaRepositoryStandard: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         NoSeriesRec: Record "No. Series";
-        Step: Option Start,NumberSeries,MasterData,Features,Finish;
+        Step: Option Start,NumberSeries,PostingGroups,MasterData,Features,Finish;
         TopBannerVisible: Boolean;
         Step1Visible: Boolean;
         Step2Visible: Boolean;
+        Step2_5Visible: Boolean;
         Step3Visible: Boolean;
         Step4Visible: Boolean;
         Step5Visible: Boolean;
@@ -328,6 +399,10 @@ page 50193 "Expense Mgmt Setup Wizard"
         MasterDataStatusText: Text;
         CreateDemoDataText: Text;
         DemoDataStatusText: Text;
+        PostingGroupCodeText: Text[20];
+        RefundableDebitAccountText: Text[20];
+        NonRefundableDebitAccountText: Text[20];
+        PrepaymentCreditAccountText: Text[20];
 
     local procedure EnableControls()
     begin
@@ -338,6 +413,8 @@ page 50193 "Expense Mgmt Setup Wizard"
                 ShowStep1();
             Step::NumberSeries:
                 ShowStep2();
+            Step::PostingGroups:
+                ShowStep2_5();
             Step::MasterData:
                 ShowStep3();
             Step::Features:
@@ -361,6 +438,20 @@ page 50193 "Expense Mgmt Setup Wizard"
         BackActionEnabled := true;
         NextActionEnabled := true;
         FinishActionEnabled := false;
+    end;
+
+    local procedure ShowStep2_5()
+    begin
+        Step2_5Visible := true;
+        BackActionEnabled := true;
+        NextActionEnabled := true;
+        FinishActionEnabled := false;
+
+        // Initialize default values for posting group
+        PostingGroupCodeText := 'STANDARD';
+        RefundableDebitAccountText := '6000';
+        NonRefundableDebitAccountText := '6100';
+        PrepaymentCreditAccountText := '2400';
     end;
 
     local procedure ShowStep3()
@@ -397,6 +488,7 @@ page 50193 "Expense Mgmt Setup Wizard"
     begin
         Step1Visible := false;
         Step2Visible := false;
+        Step2_5Visible := false;
         Step3Visible := false;
         Step4Visible := false;
         Step5Visible := false;
@@ -409,6 +501,8 @@ page 50193 "Expense Mgmt Setup Wizard"
         end else begin
             if Step = Step::NumberSeries then
                 ValidateNumberSeries();
+            if Step = Step::PostingGroups then
+                ValidatePostingGroups();
             Step := Step + 1;
         end;
 
@@ -419,6 +513,18 @@ page 50193 "Expense Mgmt Setup Wizard"
     begin
         if (Rec."Expense Report No. Sequence" = '') or (Rec."Posted Expense Report No Seq." = '') then
             Error('Please configure both number series before continuing.');
+    end;
+
+    local procedure ValidatePostingGroups()
+    begin
+        if PostingGroupCodeText = '' then
+            Error('Please specify a posting group code before continuing.');
+        if RefundableDebitAccountText = '' then
+            Error('Please specify a refundable debit account before continuing.');
+        if NonRefundableDebitAccountText = '' then
+            Error('Please specify a non-refundable debit account before continuing.');
+        if PrepaymentCreditAccountText = '' then
+            Error('Please specify a prepayment credit account before continuing.');
     end;
 
     local procedure FinishAction()
@@ -489,6 +595,25 @@ page 50193 "Expense Mgmt Setup Wizard"
         Rec."Posted Expense Report No Seq." := 'P-EXPR';
 
         Message('Default number series created successfully!');
+    end;
+
+    local procedure CreateDefaultPostingGroup()
+    var
+        PostingGroup: Record "Expense Posting Groups";
+    begin
+        // Create the standard posting group with the values from the form
+        if not PostingGroup.Get(PostingGroupCodeText) then begin
+            PostingGroup.Init();
+            PostingGroup."Posting Group Code" := PostingGroupCodeText;
+            PostingGroup."Refundable Debit Account" := RefundableDebitAccountText;
+            PostingGroup."Non Refundable Debit Account" := NonRefundableDebitAccountText;
+            PostingGroup."Prepayment Credit Account" := PrepaymentCreditAccountText;
+            PostingGroup.Insert();
+            
+            Message('Posting group "%1" created successfully!', PostingGroupCodeText);
+        end else begin
+            Message('Posting group "%1" already exists.', PostingGroupCodeText);
+        end;
     end;
 
     local procedure CreateDefaultMasterData()
