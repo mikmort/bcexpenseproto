@@ -1,11 +1,11 @@
-codeunit 50198 "Expense Management Guided Setup"
+codeunit 50191 "Expense Mgmt Guided Setup"
 {
     // This codeunit integrates with Business Central's Assisted Setup framework
     // to provide a guided setup experience for the Expense Management system
 
     trigger OnRun()
     begin
-        Page.RunModal(Page::"Expense Management Setup Wizard");
+        Page.RunModal(Page::"Expense Mgmt Setup Wizard");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
@@ -21,7 +21,7 @@ codeunit 50198 "Expense Management Guided Setup"
             'Configure the Expense Management system with number series, categories, and other essential settings.',
             5,
             ObjectType::Page,
-            Page::"Expense Management Setup Wizard",
+            Page::"Expense Mgmt Setup Wizard",
             AssistedSetupGroup::Extensions,
             '',
             VideoCategory::Extensions,
@@ -38,7 +38,7 @@ codeunit 50198 "Expense Management Guided Setup"
         if not ExpenseSetup.Get(1) then
             exit(false);
 
-        if (ExpenseSetup."Expense Report No. Sequence" = '') or 
+        if (ExpenseSetup."Expense Report No. Sequence" = '') or
            (ExpenseSetup."Posted Expense Report No Seq." = '') then
             exit(false);
 
@@ -64,7 +64,7 @@ codeunit 50198 "Expense Management Guided Setup"
         SetupItems := 3; // Number series, categories, payment methods
 
         if ExpenseSetup.Get(1) then begin
-            if (ExpenseSetup."Expense Report No. Sequence" <> '') and 
+            if (ExpenseSetup."Expense Report No. Sequence" <> '') and
                (ExpenseSetup."Posted Expense Report No Seq." <> '') then
                 CompletedItems += 1;
         end;

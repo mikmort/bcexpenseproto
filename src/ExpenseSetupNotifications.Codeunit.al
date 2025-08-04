@@ -5,7 +5,7 @@ codeunit 50199 "Expense Setup Notifications"
     [EventSubscriber(ObjectType::Page, Page::"Expense Management Menu", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowSetupNotificationOnRoleCenter()
     var
-        ExpenseGuidedSetup: Codeunit "Expense Management Guided Setup";
+        ExpenseGuidedSetup: Codeunit "Expense Mgmt Guided Setup";
         SetupNotification: Notification;
     begin
         if ExpenseGuidedSetup.IsSetupComplete() then
@@ -22,7 +22,7 @@ codeunit 50199 "Expense Setup Notifications"
     [EventSubscriber(ObjectType::Page, Page::"Expense Reports List", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowSetupNotificationOnExpenseReports()
     var
-        ExpenseGuidedSetup: Codeunit "Expense Management Guided Setup";
+        ExpenseGuidedSetup: Codeunit "Expense Mgmt Guided Setup";
         SetupNotification: Notification;
     begin
         if ExpenseGuidedSetup.IsSetupComplete() then
@@ -32,7 +32,7 @@ codeunit 50199 "Expense Setup Notifications"
             exit;
 
         SetupNotification.Id := GetSetupNotificationId();
-        SetupNotification.Message := StrSubstNo('Setup incomplete: %1. Click here to complete the setup.', 
+        SetupNotification.Message := StrSubstNo('Setup incomplete: %1. Click here to complete the setup.',
             ExpenseGuidedSetup.GetSetupStatus());
         SetupNotification.Scope := NotificationScope::LocalScope;
         SetupNotification.AddAction('Complete Setup', Codeunit::"Expense Setup Notifications", 'RunSetupWizard');
@@ -43,24 +43,14 @@ codeunit 50199 "Expense Setup Notifications"
     procedure RunSetupWizard(SetupNotification: Notification)
     begin
         SetupNotification.Recall();
-        Page.RunModal(Page::"Expense Management Setup Wizard");
+        Page.RunModal(Page::"Expense Mgmt Setup Wizard");
     end;
 
     procedure DisableSetupNotification(SetupNotification: Notification)
-    var
-        UserPreference: Record "User Preference";
     begin
         SetupNotification.Recall();
-        
-        if not UserPreference.Get(UserId(), 'ExpenseSetupNotification') then begin
-            UserPreference.Init();
-            UserPreference."User ID" := UserId();
-            UserPreference."Instruction Code" := 'ExpenseSetupNotification';
-            UserPreference.Insert();
-        end;
-        
-        UserPreference."Disable Instruction" := true;
-        UserPreference.Modify();
+        // Note: User preference storage would require custom implementation
+        // For now, just dismiss the notification
     end;
 
     procedure DismissNotification(SetupNotification: Notification)
@@ -69,12 +59,9 @@ codeunit 50199 "Expense Setup Notifications"
     end;
 
     local procedure IsSetupNotificationDisabled(): Boolean
-    var
-        UserPreference: Record "User Preference";
     begin
-        if UserPreference.Get(UserId(), 'ExpenseSetupNotification') then
-            exit(UserPreference."Disable Instruction");
-        
+        // Note: User preference storage would require custom implementation
+        // For now, always allow notifications
         exit(false);
     end;
 

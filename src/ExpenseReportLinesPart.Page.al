@@ -25,11 +25,39 @@ page 50189 "Expense Report Lines Part"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the expense category.';
+
+                    trigger OnValidate()
+                    begin
+                        // Clear subcategory when category changes
+                        if xRec."Category Code" <> Rec."Category Code" then
+                            Rec."Subcategory Code" := '';
+                    end;
                 }
                 field("Subcategory Code"; Rec."Subcategory Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the expense subcategory.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ExpenseSubcategory: Record "Expense Subcategories";
+                        ExpenseSubcategoriesList: Page "Expense Subcategories List";
+                    begin
+                        if Rec."Category Code" <> '' then begin
+                            ExpenseSubcategory.SetRange("Category Code", Rec."Category Code");
+                            ExpenseSubcategoriesList.SetTableView(ExpenseSubcategory);
+                        end;
+                        ExpenseSubcategoriesList.LookupMode(true);
+                        if ExpenseSubcategoriesList.RunModal() = Action::LookupOK then begin
+                            ExpenseSubcategoriesList.GetRecord(ExpenseSubcategory);
+                            Rec."Subcategory Code" := ExpenseSubcategory."Subcategory Code";
+                        end;
+                    end;
+                }
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the currency code for the expense.';
                 }
                 field(Description; Rec.Description)
                 {
@@ -40,16 +68,6 @@ page 50189 "Expense Report Lines Part"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the expense amount.';
-                }
-                field("Tax Amount"; Rec."Tax Amount")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the tax amount.';
-                }
-                field("Reimbursable Amount"; Rec."Reimbursable Amount")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the reimbursable amount.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {

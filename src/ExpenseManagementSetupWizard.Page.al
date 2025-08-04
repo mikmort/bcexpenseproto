@@ -1,4 +1,4 @@
-page 50199 "Expense Management Setup Wizard"
+page 50193 "Expense Mgmt Setup Wizard"
 {
     PageType = NavigatePage;
     ApplicationArea = All;
@@ -90,7 +90,7 @@ page 50199 "Expense Management Setup Wizard"
                     Caption = 'Quick Setup';
                     InstructionalText = 'Click "Create Default Number Series" to automatically create standard number series for expense reports.';
 
-                    field(CreateDefaultNumberSeries; '')
+                    field(CreateDefaultNumberSeriesField; 'Create Default Number Series')
                     {
                         ApplicationArea = All;
                         ShowCaption = false;
@@ -101,6 +101,43 @@ page 50199 "Expense Management Setup Wizard"
                         trigger OnDrillDown()
                         begin
                             CreateDefaultNumberSeries();
+                        end;
+                    }
+                }
+            }
+
+            group(Step2_5)
+            {
+                Visible = Step2_5Visible;
+                ShowCaption = false;
+
+                group("Para2_5.1")
+                {
+                    Caption = 'Posting Groups Setup';
+                    InstructionalText = 'Configure posting groups that define how expense transactions are posted to the general ledger. Add, edit, or remove posting groups as needed. G/L Account lookups will validate account existence automatically.';
+
+                    part(PostingGroupsPart; "Expense Posting Groups Part")
+                    {
+                        ApplicationArea = All;
+                        Editable = true;
+                    }
+                }
+
+                group("Para2_5.2")
+                {
+                    Caption = 'Quick Setup';
+
+                    field(CreateDefaultPostingGroupsField; 'Create Standard Posting Groups')
+                    {
+                        ApplicationArea = All;
+                        ShowCaption = false;
+                        Editable = false;
+                        Style = StandardAccent;
+                        StyleExpr = true;
+
+                        trigger OnDrillDown()
+                        begin
+                            CreateDefaultPostingGroups();
                         end;
                     }
                 }
@@ -168,7 +205,7 @@ page 50199 "Expense Management Setup Wizard"
                     Caption = 'Demo Data (Optional)';
                     InstructionalText = 'You can create demo data to help you learn and test the system. This includes sample employees, expense reports, and transactions.';
 
-                    field(CreateDemoData; CreateDemoDataText)
+                    field(CreateDemoDataField; CreateDemoDataText)
                     {
                         ApplicationArea = All;
                         Caption = 'Create Demo Data';
@@ -302,16 +339,23 @@ page 50199 "Expense Management Setup Wizard"
         Step := Step::Start;
         EnableControls();
         GetSetupRecord();
+        
+        // Initialize text for action fields
+        CreateDemoDataText := 'Click here to create demo data';
+        CreateMasterDataText := 'Click here to create master data';
+        MasterDataStatusText := '';
+        DemoDataStatusText := '';
     end;
 
     var
         MediaRepositoryStandard: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         NoSeriesRec: Record "No. Series";
-        Step: Option Start,NumberSeries,MasterData,Features,Finish;
+        Step: Option Start,NumberSeries,PostingGroups,MasterData,Features,Finish;
         TopBannerVisible: Boolean;
         Step1Visible: Boolean;
         Step2Visible: Boolean;
+        Step2_5Visible: Boolean;
         Step3Visible: Boolean;
         Step4Visible: Boolean;
         Step5Visible: Boolean;
@@ -332,6 +376,8 @@ page 50199 "Expense Management Setup Wizard"
                 ShowStep1();
             Step::NumberSeries:
                 ShowStep2();
+            Step::PostingGroups:
+                ShowStep2_5();
             Step::MasterData:
                 ShowStep3();
             Step::Features:
@@ -357,13 +403,21 @@ page 50199 "Expense Management Setup Wizard"
         FinishActionEnabled := false;
     end;
 
+    local procedure ShowStep2_5()
+    begin
+        Step2_5Visible := true;
+        BackActionEnabled := true;
+        NextActionEnabled := true;
+        FinishActionEnabled := false;
+    end;
+
     local procedure ShowStep3()
     begin
         Step3Visible := true;
         BackActionEnabled := true;
         NextActionEnabled := true;
         FinishActionEnabled := false;
-        
+
         CreateMasterDataText := 'Click here to create default master data';
         MasterDataStatusText := 'Not created';
     end;
@@ -374,7 +428,7 @@ page 50199 "Expense Management Setup Wizard"
         BackActionEnabled := true;
         NextActionEnabled := true;
         FinishActionEnabled := false;
-        
+
         CreateDemoDataText := 'Click here to create demo data';
         DemoDataStatusText := 'Not created';
     end;
@@ -391,6 +445,7 @@ page 50199 "Expense Management Setup Wizard"
     begin
         Step1Visible := false;
         Step2Visible := false;
+        Step2_5Visible := false;
         Step3Visible := false;
         Step4Visible := false;
         Step5Visible := false;
@@ -403,6 +458,8 @@ page 50199 "Expense Management Setup Wizard"
         end else begin
             if Step = Step::NumberSeries then
                 ValidateNumberSeries();
+            if Step = Step::PostingGroups then
+                ValidatePostingGroups();
             Step := Step + 1;
         end;
 
@@ -413,6 +470,14 @@ page 50199 "Expense Management Setup Wizard"
     begin
         if (Rec."Expense Report No. Sequence" = '') or (Rec."Posted Expense Report No Seq." = '') then
             Error('Please configure both number series before continuing.');
+    end;
+
+    local procedure ValidatePostingGroups()
+    var
+        PostingGroup: Record "Expense Posting Groups";
+    begin
+        if not PostingGroup.FindFirst() then
+            Error('Please create at least one posting group before continuing.');
     end;
 
     local procedure FinishAction()
@@ -432,7 +497,7 @@ page 50199 "Expense Management Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientType())) then
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(CurrentClientType())) then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") then
                 TopBannerVisible := MediaResourcesStandard."Media Reference".HasValue();
     end;
@@ -481,8 +546,104 @@ page 50199 "Expense Management Setup Wizard"
         // Update setup record
         Rec."Expense Report No. Sequence" := 'EXPR';
         Rec."Posted Expense Report No Seq." := 'P-EXPR';
-        
+
         Message('Default number series created successfully!');
+    end;
+
+    local procedure CreateDefaultPostingGroups()
+    var
+        PostingGroup: Record "Expense Posting Groups";
+        GLAccount: Record "G/L Account";
+        CreatedCount: Integer;
+    begin
+        CreatedCount := 0;
+
+        // Helper function to create posting group if GL accounts exist
+        if CreatePostingGroupIfAccountsExist('TRAVEL', 'Air/Rail/Bus tickets, lodging, taxi, mileage, parking, per diem', '15910', '62310', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('VEHICLE', 'Fuel, tolls, car service, leasing fees charged back to employee', '15910', '62110', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('ENTERTAIN_DED', 'Client meals & entertainment – deductible portion', '15910', '63420', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('ENTERTAIN_NDED', 'Client meals & entertainment – non-deductible portion', '15910', '63430', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('FREIGHT', 'Small-parcel or courier fees paid out-of-pocket', '15910', '62210', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('OFFICE_SUP', 'Stationery, printer ink, small peripherals, < DKK 2 500 tech', '15910', '64100', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('TELECOM_IT', 'Mobile data, hotspot day-passes, SIM cards', '15910', '64200', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('SOFTWARE_SUB', 'SaaS subscriptions, short-term licences bought on a card', '15910', '64600', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('MARKETING', 'Ads, event sponsorships, promo materials picked up locally', '15910', '63100', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('PRO_SERV', 'One-off consulting, design, legal, accounting fees', '15910', '68110', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('LICENSES_ROY', 'Digital-content licences, royalties paid ad-hoc', '15910', '68210', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('INSURANCE_MISC', 'Travel insurance, baggage insurance, ad-hoc risk fees', '15910', '65100', '25200') then
+            CreatedCount += 1;
+
+        if CreatePostingGroupIfAccountsExist('MISC_OTHER', 'Anything else under 67400 / 68280 / 91000 that doesn''t fit above; use as a catch-all (should be reviewed monthly)', '15910', '67400', '25200') then
+            CreatedCount += 1;
+
+        if CreatedCount > 0 then
+            Message('%1 posting groups created successfully! Accounts that don''t exist in your Chart of Accounts were left blank.', CreatedCount)
+        else
+            Message('No posting groups were created. Please verify that the required G/L accounts exist in your Chart of Accounts.');
+
+        CurrPage.PostingGroupsPart.Page.Update();
+    end;
+
+    local procedure CreatePostingGroupIfAccountsExist(Code: Code[20]; Description: Text[100]; RefundableAccount: Code[20]; NonRefundableAccount: Code[20]; PrepaymentAccount: Code[20]): Boolean
+    var
+        PostingGroup: Record "Expense Posting Groups";
+        GLAccount: Record "G/L Account";
+        RefundableAccountNo: Code[20];
+        NonRefundableAccountNo: Code[20];
+        PrepaymentAccountNo: Code[20];
+    begin
+        // Skip if posting group already exists
+        if PostingGroup.Get(Code) then
+            exit(false);
+
+        // Validate accounts exist and are posting accounts, set to blank if not
+        if GLAccount.Get(RefundableAccount) and (GLAccount."Account Type" = GLAccount."Account Type"::Posting) and not GLAccount.Blocked then
+            RefundableAccountNo := RefundableAccount
+        else
+            RefundableAccountNo := '';
+
+        if GLAccount.Get(NonRefundableAccount) and (GLAccount."Account Type" = GLAccount."Account Type"::Posting) and not GLAccount.Blocked then
+            NonRefundableAccountNo := NonRefundableAccount
+        else
+            NonRefundableAccountNo := '';
+
+        if GLAccount.Get(PrepaymentAccount) and (GLAccount."Account Type" = GLAccount."Account Type"::Posting) and not GLAccount.Blocked then
+            PrepaymentAccountNo := PrepaymentAccount
+        else
+            PrepaymentAccountNo := '';
+
+        // Create the posting group
+        PostingGroup.Init();
+        PostingGroup."Posting Group Code" := Code;
+        PostingGroup."Description" := Description;
+        PostingGroup."Refundable Debit Account" := RefundableAccountNo;
+        PostingGroup."Non Refundable Debit Account" := NonRefundableAccountNo;
+        PostingGroup."Prepayment Credit Account" := PrepaymentAccountNo;
+        PostingGroup.Insert();
+
+        exit(true);
     end;
 
     local procedure CreateDefaultMasterData()

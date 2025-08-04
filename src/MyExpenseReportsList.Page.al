@@ -1,4 +1,4 @@
-page 50159 "My Expense Reports List"
+page 50171 "My Expense Reports List"
 {
     PageType = List;
     SourceTable = "Expense Reports";
@@ -9,6 +9,7 @@ page 50159 "My Expense Reports List"
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
+    PromotedActionCategories = 'New,Process,Report,Category4,Filter';
 
     layout
     {
@@ -16,58 +17,57 @@ page 50159 "My Expense Reports List"
         {
             repeater(Group)
             {
-                OrderBy = Status, "Report Date" descending;
-                
-                field(Status; Rec.Status) 
-                { 
+
+                field(Status; Rec.Status)
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the current status of the expense report.';
                     StyleExpr = StatusStyleExpr;
                     Style = Strong;
                 }
-                field("Report Id"; Rec."Report Id") 
-                { 
+                field("Report Id"; Rec."Report Id")
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the unique identifier for the expense report.';
                 }
-                field("Employee Id"; Rec."Employee Id") 
-                { 
+                field("Employee Id"; Rec."Employee Id")
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the employee who owns this expense report.';
                 }
-                field(Purpose; Rec.Purpose) 
-                { 
+                field(Purpose; Rec.Purpose)
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the purpose or reason for the expense report.';
                 }
-                field(Destination; Rec.Destination) 
-                { 
+                field(Destination; Rec.Destination)
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the destination for the business trip or expense.';
                 }
-                field("Report Date"; Rec."Report Date") 
-                { 
+                field("Report Date"; Rec."Report Date")
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the date of the expense report.';
                 }
-                field("Total Amount"; Rec."Total Amount") 
-                { 
+                field("Total Amount"; Rec."Total Amount")
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the total amount of the expense report.';
                 }
-                field("Created By"; Rec."Created By") 
-                { 
+                field("Created By"; Rec."Created By")
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies who created this expense report.';
                 }
-                field("Created Date Time"; Rec."Created Date Time") 
-                { 
+                field("Created Date Time"; Rec."Created Date Time")
+                {
                     ApplicationArea = All;
                     ToolTip = 'Specifies when this expense report was created.';
                 }
             }
         }
-        
+
         area(factboxes)
         {
             part(ExpenseReportSummary; "Expense Report Summary FactBox")
@@ -102,14 +102,14 @@ page 50159 "My Expense Reports List"
                     if ExpenseReport.Insert(true) then begin
                         if not ExpenseReport.Get(ExpenseReport."Report Id") then
                             exit;
-                        
+
                         ExpenseReportCard.SetRecord(ExpenseReport);
                         ExpenseReportCard.Run();
                         CurrPage.Update(false);
                     end;
                 end;
             }
-            
+
             action("View Details")
             {
                 ApplicationArea = All;
@@ -127,7 +127,7 @@ page 50159 "My Expense Reports List"
                     ExpenseReportCard.Run();
                 end;
             }
-            
+
             group("Filter by Status")
             {
                 Caption = 'Filter by Status';
@@ -137,7 +137,7 @@ page 50159 "My Expense Reports List"
                     Caption = 'Show All';
                     Image = ClearFilter;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show all my expense reports regardless of status';
 
                     trigger OnAction()
@@ -146,14 +146,14 @@ page 50159 "My Expense Reports List"
                         CurrPage.Update(false);
                     end;
                 }
-                
+
                 action("Show Draft")
                 {
                     ApplicationArea = All;
                     Caption = 'Draft Reports';
                     Image = Document;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show only draft expense reports';
 
                     trigger OnAction()
@@ -162,14 +162,14 @@ page 50159 "My Expense Reports List"
                         CurrPage.Update(false);
                     end;
                 }
-                
+
                 action("Show Submitted")
                 {
                     ApplicationArea = All;
                     Caption = 'Submitted Reports';
                     Image = SendTo;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show only submitted expense reports pending approval';
 
                     trigger OnAction()
@@ -178,14 +178,14 @@ page 50159 "My Expense Reports List"
                         CurrPage.Update(false);
                     end;
                 }
-                
+
                 action("Show Approved")
                 {
                     ApplicationArea = All;
                     Caption = 'Approved Reports';
                     Image = Approval;
                     Promoted = true;
-                    PromotedCategory = Category4;
+                    PromotedCategory = Category5;
                     ToolTip = 'Show only approved expense reports';
 
                     trigger OnAction()
@@ -196,7 +196,7 @@ page 50159 "My Expense Reports List"
                 }
             }
         }
-        
+
         area(navigation)
         {
             action("Expense Report Lines")
@@ -229,10 +229,10 @@ page 50159 "My Expense Reports List"
         FilterString: Text[250];
     begin
         CurrentUserId := UserId();
-        
+
         // Build filter to show reports where current user is involved
         FilterString := CurrentUserId;
-        
+
         // Try to find employee record for current user
         Clear(EmployeeRec);
         EmployeeRec.SetRange("Employee Id", CurrentUserId);
@@ -247,19 +247,19 @@ page 50159 "My Expense Reports List"
             if EmployeeRec."Employee Id" <> CurrentUserId then
                 FilterString := FilterString + '|' + EmployeeRec."Employee Id";
         end;
-        
+
         // Set security filter to show only relevant reports
         Rec.FilterGroup(2);
-        
+
         // Create compound filter: Reports created by user OR assigned to user's employee record
         Rec.SetFilter("Created By", '%1', CurrentUserId);
         if EmployeeRec."Employee Id" <> '' then begin
             // Add OR condition for employee assignment
             Rec.SetFilter("Employee Id", '%1', EmployeeRec."Employee Id");
         end;
-        
+
         Rec.FilterGroup(0);
-        
+
         // Set default sort order by Status and then by Date
         Rec.SetCurrentKey(Status, "Report Date");
         Rec.Ascending(false); // Most recent first within each status

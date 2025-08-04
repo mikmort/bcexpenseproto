@@ -109,9 +109,9 @@ page 50198 "Expense Management Menu"
                 {
                     Caption = 'Getting Started';
                     ApplicationArea = All;
-                    RunObject = page "Expense Management Getting Started";
+                    RunObject = page "Expense Mgmt Getting Started";
                     ToolTip = 'Get started with the expense management system - setup guide and overview.';
-                    Image = TileInfo;
+                    Image = Setup;
                 }
                 action(ExpensePoliciesList)
                 {
@@ -131,7 +131,7 @@ page 50198 "Expense Management Menu"
                 {
                     Caption = 'Setup Wizard';
                     ApplicationArea = All;
-                    RunObject = page "Expense Management Setup Wizard";
+                    RunObject = page "Expense Mgmt Setup Wizard";
                     ToolTip = 'Run the guided setup wizard to configure the expense management system.';
                     Image = SetupColumns;
                 }

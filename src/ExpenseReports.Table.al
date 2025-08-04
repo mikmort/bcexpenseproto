@@ -25,7 +25,7 @@ table 50102 "Expense Reports"
         {
             Caption = 'Employee ID';
             DataClassification = ToBeClassified;
-            TableRelation = Employees."Employee Id";
+            TableRelation = Employee."No.";
         }
         field(3; Purpose; Text[255])
         {

@@ -1,4 +1,4 @@
-page 50199 "Expense Demo Data Setup"
+page 50194 "Expense Demo Data Setup"
 {
     PageType = Card;
     ApplicationArea = All;

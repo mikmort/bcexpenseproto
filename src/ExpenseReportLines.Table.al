@@ -29,12 +29,19 @@ table 50103 "Expense Report Lines"
             Caption = 'Category Code';
             DataClassification = ToBeClassified;
             TableRelation = "Expense Categories"."Category Code";
+
+            trigger OnValidate()
+            begin
+                // Clear subcategory when category changes
+                if xRec."Category Code" <> "Category Code" then
+                    "Subcategory Code" := '';
+            end;
         }
         field(6; "Subcategory Code"; Code[20])
         {
             Caption = 'Subcategory Code';
             DataClassification = ToBeClassified;
-            TableRelation = "Expense Subcategories"."Subcategory Code";
+            TableRelation = "Expense Subcategories"."Subcategory Code" where("Category Code" = field("Category Code"));
         }
         field(7; "Currency Code"; Code[3])
         {

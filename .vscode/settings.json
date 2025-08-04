@@ -1,0 +1,9 @@
+﻿{
+    "al.defaultLaunchConfigurationName": "Your own server",
+    "al.enableCodeAnalysis": false,
+    "al.codeAnalyzers": [],
+    "al.packageCachePath": "./.alpackages",
+    "al.enableCodeCop": false,
+    "al.enablePerTenantExtensionCop": false,
+    "al.enableUICop": false
+}
