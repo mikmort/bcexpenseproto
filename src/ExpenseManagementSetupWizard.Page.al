@@ -114,7 +114,7 @@ page 50193 "Expense Mgmt Setup Wizard"
                 group("Para2_5.1")
                 {
                     Caption = 'Posting Groups Setup';
-                    InstructionalText = 'Configure posting groups that define how expense transactions are posted to the general ledger.';
+                    InstructionalText = 'Configure posting groups that define how expense transactions are posted to the general ledger. Use the lookup buttons to select valid G/L accounts.';
 
                     field(PostingGroupCode; PostingGroupCodeText)
                     {
@@ -133,6 +133,36 @@ page 50193 "Expense Mgmt Setup Wizard"
                         ApplicationArea = All;
                         Caption = 'Refundable Debit Account';
                         ToolTip = 'Specifies the G/L account for refundable expenses.';
+                        TableRelation = "G/L Account";
+
+                        trigger OnValidate()
+                        var
+                            GLAccount: Record "G/L Account";
+                        begin
+                            if RefundableDebitAccountText <> '' then begin
+                                if not GLAccount.Get(RefundableDebitAccountText) then
+                                    Error('G/L Account "%1" does not exist.', RefundableDebitAccountText);
+                                if GLAccount."Account Type" <> GLAccount."Account Type"::Posting then
+                                    Error('G/L Account "%1" must be a posting account.', RefundableDebitAccountText);
+                                if GLAccount.Blocked then
+                                    Error('G/L Account "%1" is blocked.', RefundableDebitAccountText);
+                            end;
+                        end;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GLAccount: Record "G/L Account";
+                            GLAccountList: Page "G/L Account List";
+                        begin
+                            GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+                            GLAccount.SetRange(Blocked, false);
+                            GLAccountList.SetTableView(GLAccount);
+                            GLAccountList.LookupMode(true);
+                            if GLAccountList.RunModal() = Action::LookupOK then begin
+                                GLAccountList.GetRecord(GLAccount);
+                                RefundableDebitAccountText := GLAccount."No.";
+                            end;
+                        end;
                     }
 
                     field(NonRefundableDebitAccount; NonRefundableDebitAccountText)
@@ -140,6 +170,36 @@ page 50193 "Expense Mgmt Setup Wizard"
                         ApplicationArea = All;
                         Caption = 'Non-Refundable Debit Account';
                         ToolTip = 'Specifies the G/L account for non-refundable expenses.';
+                        TableRelation = "G/L Account";
+
+                        trigger OnValidate()
+                        var
+                            GLAccount: Record "G/L Account";
+                        begin
+                            if NonRefundableDebitAccountText <> '' then begin
+                                if not GLAccount.Get(NonRefundableDebitAccountText) then
+                                    Error('G/L Account "%1" does not exist.', NonRefundableDebitAccountText);
+                                if GLAccount."Account Type" <> GLAccount."Account Type"::Posting then
+                                    Error('G/L Account "%1" must be a posting account.', NonRefundableDebitAccountText);
+                                if GLAccount.Blocked then
+                                    Error('G/L Account "%1" is blocked.', NonRefundableDebitAccountText);
+                            end;
+                        end;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GLAccount: Record "G/L Account";
+                            GLAccountList: Page "G/L Account List";
+                        begin
+                            GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+                            GLAccount.SetRange(Blocked, false);
+                            GLAccountList.SetTableView(GLAccount);
+                            GLAccountList.LookupMode(true);
+                            if GLAccountList.RunModal() = Action::LookupOK then begin
+                                GLAccountList.GetRecord(GLAccount);
+                                NonRefundableDebitAccountText := GLAccount."No.";
+                            end;
+                        end;
                     }
 
                     field(PrepaymentCreditAccount; PrepaymentCreditAccountText)
@@ -147,6 +207,36 @@ page 50193 "Expense Mgmt Setup Wizard"
                         ApplicationArea = All;
                         Caption = 'Prepayment Credit Account';
                         ToolTip = 'Specifies the G/L account for prepayments.';
+                        TableRelation = "G/L Account";
+
+                        trigger OnValidate()
+                        var
+                            GLAccount: Record "G/L Account";
+                        begin
+                            if PrepaymentCreditAccountText <> '' then begin
+                                if not GLAccount.Get(PrepaymentCreditAccountText) then
+                                    Error('G/L Account "%1" does not exist.', PrepaymentCreditAccountText);
+                                if GLAccount."Account Type" <> GLAccount."Account Type"::Posting then
+                                    Error('G/L Account "%1" must be a posting account.', PrepaymentCreditAccountText);
+                                if GLAccount.Blocked then
+                                    Error('G/L Account "%1" is blocked.', PrepaymentCreditAccountText);
+                            end;
+                        end;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GLAccount: Record "G/L Account";
+                            GLAccountList: Page "G/L Account List";
+                        begin
+                            GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+                            GLAccount.SetRange(Blocked, false);
+                            GLAccountList.SetTableView(GLAccount);
+                            GLAccountList.LookupMode(true);
+                            if GLAccountList.RunModal() = Action::LookupOK then begin
+                                GLAccountList.GetRecord(GLAccount);
+                                PrepaymentCreditAccountText := GLAccount."No.";
+                            end;
+                        end;
                     }
                 }
 
@@ -375,9 +465,9 @@ page 50193 "Expense Mgmt Setup Wizard"
         
         // Initialize posting group defaults
         PostingGroupCodeText := 'STANDARD';
-        RefundableDebitAccountText := '6000';
-        NonRefundableDebitAccountText := '6100';
-        PrepaymentCreditAccountText := '2400';
+        RefundableDebitAccountText := '';
+        NonRefundableDebitAccountText := '';
+        PrepaymentCreditAccountText := '';
     end;
 
     var
@@ -449,9 +539,9 @@ page 50193 "Expense Mgmt Setup Wizard"
 
         // Initialize default values for posting group
         PostingGroupCodeText := 'STANDARD';
-        RefundableDebitAccountText := '6000';
-        NonRefundableDebitAccountText := '6100';
-        PrepaymentCreditAccountText := '2400';
+        RefundableDebitAccountText := '';
+        NonRefundableDebitAccountText := '';
+        PrepaymentCreditAccountText := '';
     end;
 
     local procedure ShowStep3()
@@ -516,15 +606,32 @@ page 50193 "Expense Mgmt Setup Wizard"
     end;
 
     local procedure ValidatePostingGroups()
+    var
+        GLAccount: Record "G/L Account";
     begin
         if PostingGroupCodeText = '' then
             Error('Please specify a posting group code before continuing.');
+        
         if RefundableDebitAccountText = '' then
             Error('Please specify a refundable debit account before continuing.');
+        if not GLAccount.Get(RefundableDebitAccountText) then
+            Error('Refundable debit account "%1" does not exist in the Chart of Accounts.', RefundableDebitAccountText);
+        if GLAccount."Account Type" <> GLAccount."Account Type"::Posting then
+            Error('Refundable debit account "%1" must be a posting account.', RefundableDebitAccountText);
+        
         if NonRefundableDebitAccountText = '' then
             Error('Please specify a non-refundable debit account before continuing.');
+        if not GLAccount.Get(NonRefundableDebitAccountText) then
+            Error('Non-refundable debit account "%1" does not exist in the Chart of Accounts.', NonRefundableDebitAccountText);
+        if GLAccount."Account Type" <> GLAccount."Account Type"::Posting then
+            Error('Non-refundable debit account "%1" must be a posting account.', NonRefundableDebitAccountText);
+        
         if PrepaymentCreditAccountText = '' then
             Error('Please specify a prepayment credit account before continuing.');
+        if not GLAccount.Get(PrepaymentCreditAccountText) then
+            Error('Prepayment credit account "%1" does not exist in the Chart of Accounts.', PrepaymentCreditAccountText);
+        if GLAccount."Account Type" <> GLAccount."Account Type"::Posting then
+            Error('Prepayment credit account "%1" must be a posting account.', PrepaymentCreditAccountText);
     end;
 
     local procedure FinishAction()
