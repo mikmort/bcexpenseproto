@@ -62,7 +62,7 @@ page 50198 "Expense Management Menu"
                 {
                     Caption = 'Employees';
                     ApplicationArea = All;
-                    RunObject = page "Employees List";
+                    RunObject = page "Employee List";
                     ToolTip = 'Manage employee master data.';
                 }
                 action(ExpenseCategoriesList)
@@ -219,7 +219,7 @@ page 50198 "Expense Management Menu"
             {
                 Caption = 'New Employee';
                 ApplicationArea = All;
-                RunObject = page "Expense Mgmt Employee Card";
+                RunObject = page "Employee Card";
                 RunPageMode = Create;
                 ToolTip = 'Create a new employee record.';
             }

@@ -134,7 +134,7 @@ page 50196 "Expense Setup Checklist"
 
                     trigger OnDrillDown()
                     begin
-                        Page.RunModal(Page::"Employees List");
+                        Page.RunModal(Page::"Employee List");
                     end;
                 }
             }
@@ -226,7 +226,7 @@ page 50196 "Expense Setup Checklist"
         PaymentMethod: Record "Payment Methods";
         ExpensePolicy: Record "Expense Policies";
         ExpenseLocation: Record "Expense Locations";
-        Employee: Record Employees;
+        Employee: Record Employee;
         PostingGroup: Record "Expense Posting Groups";
         ExpenseGroup: Record "Expense Groups";
         CompletedCount: Integer;

@@ -296,7 +296,7 @@ page 50153 "Expense Report Card"
 
     local procedure GetCurrentEmployeeId(): Code[20]
     var
-        Employee: Record Employees;
+        Employee: Record Employee;
         UserSetup: Record "User Setup";
         CurrentUserEmail: Text[250];
     begin
@@ -304,18 +304,18 @@ page 50153 "Expense Report Card"
         if UserSetup.Get(UserId()) then begin
             CurrentUserEmail := UserSetup."E-Mail";
             if CurrentUserEmail <> '' then begin
-                Employee.SetRange(Email, CurrentUserEmail);
+                Employee.SetRange("E-Mail", CurrentUserEmail);
                 if Employee.FindFirst() then
-                    exit(Employee."Employee Id");
+                    exit(Employee."No.");
             end;
         end;
 
         // Alternative: Try to find employee where email contains the current user ID
         // This is useful if the user ID is based on email prefix
         Employee.Reset();
-        Employee.SetFilter(Email, '*' + UserId() + '*');
+        Employee.SetFilter("E-Mail", '*' + UserId() + '*');
         if Employee.FindFirst() then
-            exit(Employee."Employee Id");
+            exit(Employee."No.");
 
         // Return empty if no employee found - user will need to select manually
         exit('');
@@ -323,13 +323,10 @@ page 50153 "Expense Report Card"
 
     local procedure GetDefaultCurrencyForEmployee(EmployeeId: Code[20]): Code[3]
     var
-        Employee: Record Employees;
+        Employee: Record Employee;
     begin
-        // If employee is specified, use their default currency
-        if (EmployeeId <> '') and Employee.Get(EmployeeId) and (Employee."Default Currency" <> '') then
-            exit(Employee."Default Currency");
-
-        // Fall back to system default currency
+        // Note: Built-in Employee table may not have "Default Currency" field
+        // Fall back to system default currency for now
         exit(GetDefaultCurrencyCode());
     end;
 

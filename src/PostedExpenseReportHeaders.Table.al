@@ -18,7 +18,7 @@ table 50117 "Posted Expense Report Headers"
         {
             Caption = 'Employee ID';
             DataClassification = ToBeClassified;
-            TableRelation = Employees."Employee Id";
+            TableRelation = Employee."No.";
         }
         field(4; "Posted Date"; Date)
         {
