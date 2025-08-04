@@ -80,6 +80,7 @@ codeunit 50197 "Expense Setup Data"
         if not PostingGroup.Get('STANDARD') then begin
             PostingGroup.Init();
             PostingGroup."Posting Group Code" := 'STANDARD';
+            PostingGroup."Description" := 'Standard Expense Posting Group';
             PostingGroup."Refundable Debit Account" := '6000';
             PostingGroup."Non Refundable Debit Account" := '6100';
             PostingGroup."Prepayment Credit Account" := '2400';
@@ -89,6 +90,7 @@ codeunit 50197 "Expense Setup Data"
         if not PostingGroup.Get('TRAVEL') then begin
             PostingGroup.Init();
             PostingGroup."Posting Group Code" := 'TRAVEL';
+            PostingGroup."Description" := 'Travel and Transportation Expenses';
             PostingGroup."Refundable Debit Account" := '6200';
             PostingGroup."Non Refundable Debit Account" := '6210';
             PostingGroup."Prepayment Credit Account" := '2410';
@@ -98,6 +100,7 @@ codeunit 50197 "Expense Setup Data"
         if not PostingGroup.Get('ENTERTAINMENT') then begin
             PostingGroup.Init();
             PostingGroup."Posting Group Code" := 'ENTERTAINMENT';
+            PostingGroup."Description" := 'Entertainment and Client Meals';
             PostingGroup."Refundable Debit Account" := '6300';
             PostingGroup."Non Refundable Debit Account" := '6310';
             PostingGroup."Prepayment Credit Account" := '2420';
